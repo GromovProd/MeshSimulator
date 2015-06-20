@@ -14,6 +14,7 @@ namespace MeshSimulator.Model
         public int Id
         {
             get { return id; }
+            private set { id = value; }
         }
 
         private Coordinate coordinate;
@@ -40,6 +41,14 @@ namespace MeshSimulator.Model
             private set { speed = value; }
         }
 
+        private double speedAngle;
+
+        public double SpeedAngle
+        {
+            get { return speedAngle; }
+            set { speedAngle = value; }
+        }
+
         private double timeDeviation;
 
         public double TimeDeviation
@@ -48,9 +57,9 @@ namespace MeshSimulator.Model
             private set { timeDeviation = value; }
         }
 
-        private DateTime localTime;
+        private TimeSpan localTime;
 
-        public DateTime LocalTime
+        public TimeSpan LocalTime
         {
             get { return localTime; }
             private set { localTime = value; }
@@ -64,6 +73,14 @@ namespace MeshSimulator.Model
             private set { currentSuperCycle = value; }
         }
 
+        private TimeSpan superCycleTime;
+
+        public TimeSpan SuperCycleTime
+        {
+            get { return superCycleTime; }
+            set { superCycleTime = value; }
+        }
+
         private int currentCycle;
 
         public int CurrentCycle
@@ -72,12 +89,36 @@ namespace MeshSimulator.Model
             private set { currentCycle = value; }
         }
 
+        private TimeSpan cycleTime;
+
+        public TimeSpan CycleTime
+        {
+            get { return cycleTime; }
+            set { cycleTime = value; }
+        }
+
         private int currentFrame;
 
         public int CurrentFrame
         {
             get { return currentFrame; }
             private set { currentFrame = value; }
+        }
+
+        private TimeSpan frameTime;
+
+        public TimeSpan FrameTime
+        {
+            get { return frameTime; }
+            set { frameTime = value; }
+        }
+
+        private TimeSpan guardTimeInterval;
+
+        public TimeSpan GuardTimeInterval
+        {
+            get { return guardTimeInterval; }
+            set { guardTimeInterval = value; }
         }
 
         private bool isWantTransmit;
@@ -166,13 +207,45 @@ namespace MeshSimulator.Model
 
         #endregion
 
+        public Station(int id, double connectionRadius, Coordinate coord, int currentSuperCycle, int currentCycle, int currentFrame,
+            TimeSpan superCycleTime, TimeSpan cycleTime, TimeSpan frameTime, TimeSpan guardTimeInterval, TimeSpan localTime,
+            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation)
+        {
+            Id = id;
+            this.AwakeTime = TimeSpan.FromMilliseconds(0);
+            this.ConnectionRadius = connectionRadius;
+            this.Coordinate = coord;
+            this.CurrentSuperCycle = CurrentSuperCycle;
+            this.CurrentCycle = currentCycle;
+            this.CurrentFrame = CurrentFrame;
+            this.SuperCycleTime = superCycleTime;
+            this.CycleTime = cycleTime;
+            this.FrameTime = FrameTime;
+            this.GuardTimeInterval = guardTimeInterval;
+            this.IsRecieve = false;
+            this.IsTransmit = false;
+            this.IsWantRecieve = false;
+            this.IsWantTransmit = false;
+            this.LocalTime = localTime;
+            this.PacketRecieveTime = packetRecieveTime;
+            this.PacketTransmitTime = packetTransmitTime;
+            this.Speed = speed;
+            this.SpeedAngle = SpeedAngle;
+            this.TimeDeviation = deviation;
+        }
+
+
         #region Methods
 
-        public void Update();
+        public void Update()
+        {
+            IsWantRecieve = true;
+            
+        }
 
         public void Recieve(ChannelState channelState, Message message = null);
 
-        public Message Transmit();
+        public Message Transmit(bool isNoise) { return null; }
 
         public void ChangeAwakeTime(TimeSpan newAwakeTime)
         {

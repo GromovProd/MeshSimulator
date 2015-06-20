@@ -116,7 +116,9 @@ namespace MeshSimulator.Model
                 {
                     var TxStations = GetNearTxStations(station);
 
-                    var message = new Message(CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station)));
+                    bool isNoise = CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station));
+
+                    var message = TxStations[0].Transmit(isNoise);
                     station.Recieve(channelState, message);
                 }
 
@@ -135,7 +137,12 @@ namespace MeshSimulator.Model
         {
             double p = (1 / (maxRange * maxRange)) * range * range - (2 / maxRange) * range + 1;
 
-            //Закончить
+            var random = rand.NextDouble();
+
+            if (random < p)
+            {
+                return true;
+            }
 
             return false;
         }
