@@ -112,6 +112,7 @@ namespace MeshSimulator.Model
                 //проверяем что передача началась после прослушивания
                 //принимаем
 
+
                 if (channelState == Model.ChannelState.Filled)
                 {
                     var TxStations = GetNearTxStations(station);
@@ -119,9 +120,13 @@ namespace MeshSimulator.Model
                     bool isNoise = CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station));
 
                     var message = TxStations[0].Transmit(isNoise);
-                    station.Recieve(channelState, message);
+                    if (TxStations[0].StartTransmitTime > station.StartRecieveTime)
+                        station.Recieve(channelState, message);
+                    else
+                    {
+                        station.Recieve(channelState);
+                    }
                 }
-
                 else
                 {
                     station.Recieve(channelState);
