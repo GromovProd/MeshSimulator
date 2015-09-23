@@ -11,7 +11,7 @@ namespace MeshSimulator.Model
 {
     public class Environment
     {
-        private List<Station> stations;
+        private List<Station> stations = new List<Station>();
         public List<Station> Stations
         {
             get { return stations; }
@@ -52,12 +52,25 @@ namespace MeshSimulator.Model
             set { delayTime = value; }
         }
 
+        private int countOfStations = 0;
+
+        public int CountOfStations
+        {
+            get { return countOfStations; }
+            set { countOfStations = value; }
+        }
+
         private Random rand;
 
         public Random Rand
         {
             get { return rand; }
             set { rand = value; }
+        }
+
+        public Environment()
+        {
+            CountOfStations = 10;
         }
 
         public void Emulate()
@@ -67,13 +80,21 @@ namespace MeshSimulator.Model
             {
                 Update();
                 DelayTime = NextStation.AwakeTime;
-                Thread.Sleep((int)(DelayTime.TotalMilliseconds));
+                //Thread.Sleep((int)(DelayTime.TotalMilliseconds));
             }
         }
 
         public void LoadData()
         {
+            CountOfStations = 10;
+            var cyclesInSuperCycle = 3;
+            for (int i = 0; i < CountOfStations; i++)
+            {
+                var station = new Station(i, 50, new Coordinate() { X = 25, Y = 25 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
+                    new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 100), 0, 0, 0.0, new Random(0));
 
+                Stations.Add(station);
+            }
         }
 
         public void Update()
@@ -86,7 +107,7 @@ namespace MeshSimulator.Model
             //если передает
             if (station.IsTransmit)
             {
-                var channelState = ChannelState(station);
+                var channelState = GetChannelState(station);
 
                 if (channelState == Model.ChannelState.Empty)
                 {
@@ -94,7 +115,7 @@ namespace MeshSimulator.Model
                     foreach (Station rx in RxStations)
                     {
                         //проверяем слушателей
-                        if (station.StartTransmitTime > rx.StartRecieveTime) //принимаем пакет от начала передачи, слушаем всегда раньше
+                        if (station.StartTransmitTime >= rx.StartRecieveTime) //принимаем пакет от начала передачи, слушаем всегда раньше
                         {
                             //через это время передача завершится
                             var packetEndTime = station.PacketTransmitTime - (NowTime - station.StartTransmitTime);
@@ -108,19 +129,19 @@ namespace MeshSimulator.Model
             //если слушает
             if (station.IsRecieve)
             {
-                var channelState = ChannelState(station);
+                var channelState = GetChannelState(station);
                 //проверяем что передача началась после прослушивания
                 //принимаем
 
-
-                if (channelState == Model.ChannelState.Filled)
+                //мне не нравится этот код
+                if (channelState != Model.ChannelState.Empty)
                 {
                     var TxStations = GetNearTxStations(station);
 
                     bool isNoise = CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station));
 
                     var message = TxStations[0].Transmit(isNoise);
-                    if (TxStations[0].StartTransmitTime > station.StartRecieveTime)
+                    if (TxStations[0].StartTransmitTime >= station.StartRecieveTime)
                         station.Recieve(channelState, message);
                     else
                     {
@@ -132,6 +153,7 @@ namespace MeshSimulator.Model
                     station.Recieve(channelState);
                 }
 
+                //если никто не разбудил
                 //надо проснуться через время прослушивания и сказать что не слушаешь
             }
 
@@ -186,7 +208,7 @@ namespace MeshSimulator.Model
             return nearTxStations;
         }
 
-        public ChannelState ChannelState(Station rx)
+        public ChannelState GetChannelState(Station rx)
         {
             var nearStations = GetNearTxStations(rx).Count;
 

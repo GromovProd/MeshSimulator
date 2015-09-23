@@ -11,6 +11,22 @@ namespace MeshSimulator.Model
         #region Values
         private int id;
 
+        private StationAction currentState = StationAction.None;
+
+        public StationAction CurrentState
+        {
+            get { return currentState; }
+            set { currentState = value; }
+        }
+
+        private StationAction nextState = StationAction.None;
+
+        public StationAction NextState
+        {
+            get { return nextState; }
+            set { nextState = value; }
+        }
+
         public int Id
         {
             get { return id; }
@@ -62,14 +78,16 @@ namespace MeshSimulator.Model
         public TimeSpan LocalTime
         {
             get { return localTime; }
-            private set { localTime = value; }
+            set { localTime = value; }
         }
 
-        public TimeSpan TimeFromFrameStart
+        public TimeSpan TimeFromSlotStart
         {
             get
             {
-                return TimeSpan.FromMilliseconds((LocalTime.TotalMilliseconds / FrameTime.TotalMilliseconds - (int)LocalTime.TotalMilliseconds / FrameTime.TotalMilliseconds) * FrameTime.TotalMilliseconds);
+                var totalslots = (LocalTime.TotalMilliseconds / SlotTime.TotalMilliseconds);
+                var roundedslots = (int)(LocalTime.TotalMilliseconds / SlotTime.TotalMilliseconds);
+                return TimeSpan.FromMilliseconds((totalslots - roundedslots) * SlotTime.TotalMilliseconds);
             }
         }
 
@@ -118,39 +136,39 @@ namespace MeshSimulator.Model
             set { cycleTime = value; }
         }
 
-        private int framesInCycle;
+        private int slotsInCycle;
 
-        public int FramesInCycle
+        public int SlotsInCycle
         {
-            get { return framesInCycle; }
-            set { framesInCycle = value; }
+            get { return slotsInCycle; }
+            set { slotsInCycle = value; }
         }
 
-        private int currentFrame;
+        private int currentSlot;
 
-        public int CurrentFrame
+        public int CurrentSlot
         {
             get
             {
-                return (int)Math.Truncate((LocalTime.TotalMilliseconds - CurrentSuperCycle * SuperCycleTime.TotalMilliseconds - CurrentCycle * CycleTime.TotalMilliseconds) / FrameTime.TotalMilliseconds);
+                return (int)Math.Truncate((LocalTime.TotalMilliseconds - CurrentSuperCycle * SuperCycleTime.TotalMilliseconds - CurrentCycle * CycleTime.TotalMilliseconds) / SlotTime.TotalMilliseconds);
             }
         }
 
-        private TimeSpan frameTime;
+        private TimeSpan slotTime;
 
-        public TimeSpan FrameTime
+        public TimeSpan SlotTime
         {
-            get { return frameTime; }
-            set { frameTime = value; }
+            get { return slotTime; }
+            set { slotTime = value; }
         }
 
-        private TimeSpan guardTimeInterval;
+        //private TimeSpan guardTimeInterval;
 
-        public TimeSpan GuardTimeInterval
-        {
-            get { return guardTimeInterval; }
-            set { guardTimeInterval = value; }
-        }
+        //public TimeSpan GuardTimeInterval
+        //{
+        //    get { return guardTimeInterval; }
+        //    set { guardTimeInterval = value; }
+        //}
 
         private bool isWantTransmit;
 
@@ -216,6 +234,22 @@ namespace MeshSimulator.Model
             set { isRecieve = value; }
         }
 
+        private TimeSpan lastRxUpTime;
+
+        public TimeSpan LastRxUpTime
+        {
+            get { return lastRxUpTime; }
+            set { lastRxUpTime = value; }
+        }
+
+        private TimeSpan lastTxUpTime;
+
+        public TimeSpan LastTxUpTime
+        {
+            get { return lastTxUpTime; }
+            set { lastTxUpTime = value; }
+        }
+
         private TimeSpan awakeTime;
 
         public TimeSpan AwakeTime
@@ -223,8 +257,7 @@ namespace MeshSimulator.Model
             get { return awakeTime; }
             set
             {
-                awakeTime = value + TimeSpan.FromMilliseconds(timeDeviation * value.TotalMilliseconds);
-
+                awakeTime = value + TimeSpan.FromMilliseconds(TimeDeviation * value.TotalMilliseconds);
             }
         }
 
@@ -240,25 +273,22 @@ namespace MeshSimulator.Model
 
         #endregion
 
-        public Station(int id, double connectionRadius, Coordinate coord, int currentSuperCycle, int currentCycle, int currentFrame,
-            TimeSpan superCycleTime, TimeSpan cycleTime, TimeSpan frameTime, TimeSpan guardTimeInterval, TimeSpan localTime,
+        public Station(int id, double connectionRadius, Coordinate coord,
+            int cyclesInSuperCycle, int slotsInCycle, TimeSpan slotTime, TimeSpan localTime,
             TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, Random rand)
         {
             Id = id;
             this.AwakeTime = TimeSpan.FromMilliseconds(0);
             this.ConnectionRadius = connectionRadius;
             this.Coordinate = coord;
-            //this.CurrentSuperCycle = CurrentSuperCycle;
-            this.RxCycle = currentCycle;
-            //this.CurrentFrame = CurrentFrame;
-            this.SuperCycleTime = superCycleTime;
-            this.CycleTime = cycleTime;
-            this.FrameTime = FrameTime;
-            this.GuardTimeInterval = guardTimeInterval;
+            this.SlotTime = slotTime;
+            this.SlotsInCycle = slotsInCycle;
+            this.CyclesInSuperCycle = cyclesInSuperCycle;
+            this.CycleTime = new TimeSpan(0, 0, 0, 0, (int)(slotsInCycle * SlotTime.TotalMilliseconds));
+            this.SuperCycleTime = new TimeSpan(0, 0, 0, 0, (int)(cyclesInSuperCycle * CycleTime.TotalMilliseconds));
+
             this.IsRecieve = false;
             this.IsTransmit = false;
-            this.IsWantRecieve = true;
-            this.IsWantTransmit = false;
             this.LocalTime = localTime;
             this.PacketRecieveTime = packetRecieveTime;
             this.PacketTransmitTime = packetTransmitTime;
@@ -268,6 +298,9 @@ namespace MeshSimulator.Model
             this.rand = rand;
 
             RxCycle = rand.Next(CyclesInSuperCycle);
+
+            //NextState = GetNextState();
+            //UpdateState(nextAction);
         }
 
 
@@ -275,76 +308,201 @@ namespace MeshSimulator.Model
 
         public void Update()
         {
-            if (IsWantRecieve)
-            {
-                IsRecieve = true;
-            }
+            UpdateState(NextState);
 
-            if (IsWantTransmit)
-            {
-                IsTransmit = true;
-            }
+            NextState = GetNextState();
 
-            if (IsRecieve)
-            {
-
-
-            }
-
-            if (IsTransmit && CurrentSuperCycle != 0)
-            {
-
-
-
-            }
-
-
-
-
-            //CurrentCycle = (int)Math.Truncate(LocalTime.TotalMilliseconds / CycleTime.TotalMilliseconds);
-
+            LocalTime.TotalMilliseconds.ToString();
+            AwakeTime.TotalMilliseconds.ToString();
+            CurrentState.ToString();
         }
 
-        private TimeSpan GetRxAwakeTime()
+        private StationAction GetNextState()
+        {
+            var nextTxUp = GetTxUpAwakeTime();
+            var nextTxDown = GetTxDownAwakeTime();
+            var nextRxUp = GetRxUpAwakeTime();
+            var nextRxDown = GetRxDownAwakeTime();
+            var nextRxCycleUpdate = GetUpdateRxCycleAwakeTime();
+
+            var minTime = nextTxUp;
+            var state = StationAction.TxUp;
+
+            if ((minTime > nextTxDown || nextTxUp.TotalMilliseconds == 0) && (CurrentState == StationAction.TxUp))
+            {
+                minTime = nextTxDown;
+                state = StationAction.TxDown;
+            }
+
+            if (minTime > nextRxUp)
+            {
+                minTime = nextRxUp;
+                state = StationAction.RxUp;
+            }
+
+            if ((minTime > nextRxDown || nextRxUp.TotalMilliseconds == 0) && (CurrentState == StationAction.RxUp))
+            {
+                minTime = nextRxDown;
+                state = StationAction.RxDown;
+            }
+
+            if (minTime >= nextRxCycleUpdate)
+            {
+                minTime = nextRxCycleUpdate;
+                state = StationAction.RCU;
+            }
+
+            AwakeTime = minTime;
+
+            return state;
+        }
+
+        private void UpdateState(StationAction state)
+        {
+            CurrentState = NextState;
+            switch (CurrentState)
+            {
+                case StationAction.RxUp:
+                    {
+                        LastRxUpTime = LocalTime;
+                        IsRecieve = true;
+                        break;
+                    }
+                case StationAction.RxDown:
+                    {
+                        IsRecieve = false;
+                        break;
+                    }
+                case StationAction.TxUp:
+                    {
+                        LastTxUpTime = LocalTime;
+                        IsTransmit = true;
+                        break;
+                    }
+                case StationAction.TxDown:
+                    {
+                        IsTransmit = false;
+                        break;
+                    }
+                case StationAction.RCU:
+                    {
+                        IsTransmit = false;
+                        IsRecieve = false;
+                        //additional logic
+
+                        RxCycle = rand.Next(CyclesInSuperCycle);
+                        break;
+                    }
+            }
+            NextState = state;
+        }
+
+        private TimeSpan GetRxUpAwakeTime()
         {
             double time = 0;
 
             if (RxCycle < CurrentCycle)
             {
-                time = (CyclesInSuperCycle - 1 - CurrentCycle + RxCycle) * CycleTime.TotalMilliseconds + (FramesInCycle - CurrentFrame) * FrameTime.TotalMilliseconds - TimeFromFrameStart.TotalMilliseconds;
+                time = (CyclesInSuperCycle - 1 - CurrentCycle + RxCycle) * CycleTime.TotalMilliseconds + (SlotsInCycle - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
             }
 
             if (RxCycle == CurrentCycle)
             {
-                time = (CurrentFrame + 1) * FrameTime.TotalMilliseconds - TimeFromFrameStart.TotalMilliseconds;
+                //включаем сейчас!
+                time = 0;// (CurrentSlot + 1) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
             }
 
             if (RxCycle > CurrentCycle)
             {
-                time = (RxCycle - CurrentCycle - 1) * CycleTime.TotalMilliseconds + (FramesInCycle - CurrentFrame) * FrameTime.TotalMilliseconds - TimeFromFrameStart.TotalMilliseconds;
+                time = (RxCycle - CurrentCycle - 1) * CycleTime.TotalMilliseconds + (SlotsInCycle - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
             }
 
             return TimeSpan.FromMilliseconds(time);
         }
 
-        private TimeSpan GetTxAwakeTime()
+        private TimeSpan GetRxDownAwakeTime()
         {
             double time = 0;
 
-            if (Id < CurrentFrame)
+            if (IsRecieve)
             {
-                //next cycle
+                //Берем последнее время когда начали передавать и к нему прибавляем и остаток длительности прослушки.
+                //time = PacketRecieveTime.TotalMilliseconds - (LocalTime.TotalMilliseconds - LastRxUpTime.TotalMilliseconds); 
+                //ПРАВИТЬ
+                time = (SlotsInCycle - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+            }
+            else
+            {
+                //находим ближайшую передачу и прибавляем время цикла
+                var rxUpTime = GetRxUpAwakeTime();
+                time = rxUpTime.TotalMilliseconds + CycleTime.TotalMilliseconds;
             }
 
-            //if (Id == CurrentFrame)
-            //{
-            //    IsTransmit = true;
-            //}
+            return TimeSpan.FromMilliseconds(time);
+        }
 
-            if (Id > CurrentFrame)
+        private TimeSpan GetTxUpAwakeTime()
+        {
+            double time = 0;
+
+            if (CurrentCycle != RxCycle)
             {
-                time = (Id - CurrentFrame - 1) * FrameTime.TotalMilliseconds - TimeFromFrameStart.TotalMilliseconds;
+                if (Id < CurrentSlot)
+                {
+                    if (CurrentCycle + 1 != RxCycle)
+                    {
+                        time = CycleTime.TotalMilliseconds - (CurrentSlot - Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                    }
+                    else
+                    {
+                        time = 2 * CycleTime.TotalMilliseconds - (CurrentSlot - Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                    }
+                }
+
+                if (Id > CurrentSlot)
+                {
+                    time = (Id - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                }
             }
+            else
+            {
+                if (Id < CurrentSlot)
+                {
+
+                    time = (SlotsInCycle - CurrentSlot + Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                }
+                else
+                {
+                    time = CycleTime.TotalMilliseconds - (CurrentSlot - Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.Milliseconds;
+                }
+            }
+            return TimeSpan.FromMilliseconds(time);
+        }
+
+        private TimeSpan GetTxDownAwakeTime()
+        {
+            double time = 0;
+
+            if (IsTransmit)
+            {
+                //Берем последнее время когда начали передавать и к нему прибавляем и остаток длительности прослушки.
+                time = PacketTransmitTime.TotalMilliseconds - (LocalTime.TotalMilliseconds - LastTxUpTime.TotalMilliseconds);
+            }
+            else
+            {
+                //находим ближайшую передачу и прибавляем время передачи
+                var txUpTime = GetTxUpAwakeTime();
+                time = txUpTime.TotalMilliseconds + PacketTransmitTime.TotalMilliseconds;
+            }
+
+            return TimeSpan.FromMilliseconds(time);
+        }
+
+        private TimeSpan GetUpdateRxCycleAwakeTime()
+        {
+            double time = 0;
+
+            time = SuperCycleTime.TotalMilliseconds - CurrentCycle * CycleTime.TotalMilliseconds - CurrentSlot * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
 
             return TimeSpan.FromMilliseconds(time);
         }

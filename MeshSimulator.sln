@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshSimulator", "MeshSimulator\MeshSimulator.csproj", "{DF990A67-ADEA-40DD-8AE3-27C80BF4614A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StationTest", "StationTest\StationTest.csproj", "{157EF935-7B75-4E27-B96B-F3D35DF8F048}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DF990A67-ADEA-40DD-8AE3-27C80BF4614A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF990A67-ADEA-40DD-8AE3-27C80BF4614A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF990A67-ADEA-40DD-8AE3-27C80BF4614A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{157EF935-7B75-4E27-B96B-F3D35DF8F048}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157EF935-7B75-4E27-B96B-F3D35DF8F048}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157EF935-7B75-4E27-B96B-F3D35DF8F048}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157EF935-7B75-4E27-B96B-F3D35DF8F048}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

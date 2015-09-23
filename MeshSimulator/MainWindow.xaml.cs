@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using MeshSimulator.Model;
+using Environment = MeshSimulator.Model.Environment;
 
 namespace MeshSimulator
 {
@@ -20,9 +22,33 @@ namespace MeshSimulator
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Environment enviroment = new Environment();
+
+        public Environment Enviroment
+        {
+            get { return enviroment; }
+            set { enviroment = value; }
+        }
         public MainWindow()
         {
             InitializeComponent();
+            Enviroment.LoadData();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (Enviroment.IsEmulate)
+            {
+                Enviroment.IsEmulate = false;
+
+            }
+            else
+            {
+                Enviroment.IsEmulate = true;
+                //Dispatcher.BeginInvoke();
+                
+            }
+
         }
     }
 }

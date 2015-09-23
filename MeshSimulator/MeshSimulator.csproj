@@ -73,6 +73,7 @@
     <Compile Include="Model\ITask.cs" />
     <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Station.cs" />
+    <Compile Include="Model\StationAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -95,6 +96,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="README.MD" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
