@@ -6,6 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using MeshSimulator.Model;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Log.Support;
 
 namespace MeshSimulator.Model
 {
@@ -15,7 +18,35 @@ namespace MeshSimulator.Model
         public List<Station> Stations
         {
             get { return stations; }
-            set { stations = value; }
+            set
+            {
+                stations = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+        private int transmitredTotal = 0;
+
+        public int TransmitredTotal
+        {
+            get { return transmitredTotal; }
+            set { transmitredTotal = value; NotifyPropertyChanged(); }
+        }
+
+        private int recievedTotal = 0;
+
+        public int RecievedTotal
+        {
+            get { return recievedTotal; }
+            set { recievedTotal = value; NotifyPropertyChanged(); }
+        }
+
+        private double effisiensy = 0;
+
+        public double Effisiensy
+        {
+            get { return effisiensy; }
+            set { effisiensy = value; NotifyPropertyChanged(); }
         }
 
         private DateTime startTime;
@@ -26,14 +57,17 @@ namespace MeshSimulator.Model
             set { startTime = value; }
         }
 
+        private TimeSpan globalTime;
+
+        public TimeSpan GlobalTime
+        {
+            get { return globalTime; }
+            set { globalTime = value; }
+        }
+
         public TimeSpan NowTime
         {
             get { return DateTime.Now - StartTime; }
-        }
-
-        public Station NextStation
-        {
-            get { return Stations.OrderBy(p => p.AwakeTime.TotalMilliseconds).First(); }
         }
 
         private bool isEmulate = false;
@@ -70,17 +104,51 @@ namespace MeshSimulator.Model
 
         public Environment()
         {
+            Rand = new Random();
             CountOfStations = 10;
         }
 
         public void Emulate()
         {
 
+            var isTimeAdded = false;
+
+            DelayTime = new TimeSpan(0, 0, 1);
+
             while (IsEmulate)
             {
-                Update();
-                DelayTime = NextStation.AwakeTime;
-                //Thread.Sleep((int)(DelayTime.TotalMilliseconds));
+
+                if (TransmitredTotal != 0)
+                    Effisiensy = (double)RecievedTotal / (double)TransmitredTotal;
+
+                //обновляем устройство
+                var station = GetNextStation();
+
+                if (station.AwakeTime == TimeSpan.Zero || isTimeAdded)
+                {
+                    isTimeAdded = false;
+                    Update(station);
+
+                }
+                else
+                {
+                    isTimeAdded = true;
+
+                    var timeToSubstract = station.AwakeTime;
+
+                    foreach (Station s in Stations)
+                    {
+                        s.LocalTime = s.LocalTime.Add(timeToSubstract);
+                        s.AwakeTime = s.AwakeTime.Subtract(timeToSubstract);
+                    }
+
+                    //Update(station);
+
+                    GlobalTime = GlobalTime.Add(station.AwakeTime);
+
+
+                    Thread.Sleep((int)(DelayTime.TotalMilliseconds));
+                }
             }
         }
 
@@ -88,76 +156,119 @@ namespace MeshSimulator.Model
         {
             CountOfStations = 10;
             var cyclesInSuperCycle = 3;
-            for (int i = 0; i < CountOfStations; i++)
+            for (int i = 0; i < CountOfStations / 2; i++)
             {
-                var station = new Station(i, 50, new Coordinate() { X = 25, Y = 25 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
-                    new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 100), 0, 0, 0.0, new Random(0));
+                for (int j = 0; j < CountOfStations / 2; j++)
+                {
+                    var station = new Station(j + CountOfStations / 2 * i, 50, new Coordinate() { X = 25 * i, Y = 25 * j }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
+                        new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 100), 0, 0, 0.0, Rand.Next());
 
-                Stations.Add(station);
+                    Stations.Add(station);
+                }
             }
         }
 
-        public void Update()
+        public void Update(Station station)
         {
-            //обновляем устройство
-            var station = NextStation;
 
             station.Update();
 
+            ProvideTransmition(station);
+
+        }
+
+        private void ProvideTransmition(Station station)
+        {
             //если передает
-            if (station.IsTransmit)
+            if (station.CurrentState == StationAction.TxUp)
             {
                 var channelState = GetChannelState(station);
 
                 if (channelState == Model.ChannelState.Empty)
                 {
                     var RxStations = GetNearRxStations(station);
-                    foreach (Station rx in RxStations)
-                    {
-                        //проверяем слушателей
-                        if (station.StartTransmitTime >= rx.StartRecieveTime) //принимаем пакет от начала передачи, слушаем всегда раньше
-                        {
-                            //через это время передача завершится
-                            var packetEndTime = station.PacketTransmitTime - (NowTime - station.StartTransmitTime);
-                            rx.ChangeAwakeTime(packetEndTime);  //формируем событие пробуждение слушателям
-                        }
-                    }
-                }
 
+                    station.StationsToTransmit = RxStations;
+
+                    //foreach (Station rx in RxStations)
+                    //{
+                    //    //проверяем слушателей
+                    //    if (station.StartTransmitTime <= rx.StartRecieveTime) //принимаем пакет от начала передачи, слушаем всегда раньше
+                    //    {
+                    //        //надо запомнить все станции которые слушают
+
+                    //        //через это время передача завершится
+                    //        var packetEndTime = station.PacketTransmitTime - (NowTime - station.StartTransmitTime);
+                    //        //rx.ChangeAwakeTime(packetEndTime);  //формируем событие пробуждение слушателям
+                    //    }
+                    //}
+
+
+                }
             }
 
-            //если слушает
-            if (station.IsRecieve)
+            if (station.CurrentState == StationAction.TxDown)
             {
-                var channelState = GetChannelState(station);
-                //проверяем что передача началась после прослушивания
-                //принимаем
-
-                //мне не нравится этот код
-                if (channelState != Model.ChannelState.Empty)
+                foreach (Station rx in station.StationsToTransmit)
                 {
-                    var TxStations = GetNearTxStations(station);
-
-                    bool isNoise = CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station));
-
-                    var message = TxStations[0].Transmit(isNoise);
-                    if (TxStations[0].StartTransmitTime >= station.StartRecieveTime)
-                        station.Recieve(channelState, message);
-                    else
+                    Logger.Instance.WriteInfo("Transmit to:" + rx.Id + " from:" + station.Id);
+                    TransmitredTotal++;
+                    var channelState = GetChannelState(rx);
+                    bool isNoise = !CanDeliver(station.ConnectionRadius, GetRange(station, rx));
+                    var message = station.Transmit(isNoise);
+                    rx.Recieve(channelState, message);
+                    if (!isNoise)
                     {
-                        station.Recieve(channelState);
+                        RecievedTotal++;
                     }
                 }
-                else
-                {
-                    station.Recieve(channelState);
-                }
 
-                //если никто не разбудил
-                //надо проснуться через время прослушивания и сказать что не слушаешь
+                station.StationsToTransmit.Clear();
             }
+
+
+
+            ////если слушает
+            //if (station.IsRecieve)
+            //{
+            //    var channelState = GetChannelState(station);
+            //    //проверяем что передача началась после прослушивания
+            //    //принимаем
+
+            //    //мне не нравится этот код
+            //    if (channelState != Model.ChannelState.Empty)
+            //    {
+            //        var TxStations = GetNearTxStations(station);
+
+            //        bool isNoise = CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station));
+
+            //        var message = TxStations[0].Transmit(isNoise);
+
+            //        Logger.Instance.WriteInfo("Can send " + TxStations[0].Id);
+
+            //        if (TxStations[0].StartTransmitTime >= station.StartRecieveTime)
+            //            station.Recieve(channelState, message);
+            //        else
+            //        {
+            //            station.Recieve(channelState);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        station.Recieve(channelState);
+            //    }
+
+            //если никто не разбудил
+            //надо проснуться через время прослушивания и сказать что не слушаешь
 
         }
+
+        private Station GetNextStation()
+        {
+            var list = Stations.OrderBy(p => p.AwakeTime.TotalMilliseconds).ToList();
+            return list.First();
+        }
+
 
         //Обеспечение приема заданной вероятности
         public bool CanDeliver(double maxRange, double range)
@@ -174,6 +285,11 @@ namespace MeshSimulator.Model
             return false;
         }
 
+        /// <summary>
+        /// Станции, которые могут услышать
+        /// </summary>
+        /// <param name="tx"></param>
+        /// <returns></returns>
         public List<Station> GetNearRxStations(Station tx)
         {
             var rxStations = Stations.Where(i => i.IsRecieve == true);
@@ -193,7 +309,11 @@ namespace MeshSimulator.Model
 
         public List<Station> GetNearTxStations(Station rx)
         {
-            var txStations = Stations.Where(i => i.IsTransmit == true);
+            var txStations = Stations.Where(i => i.CurrentState == StationAction.TxUp).ToList();
+
+            if (txStations.IndexOf(rx) >= 0)
+                txStations.Remove(rx);
+
 
             var nearTxStations = new List<Station>();
 
@@ -231,6 +351,20 @@ namespace MeshSimulator.Model
         {
             return new Vector(tx.Coordinate.X - rx.Coordinate.X, tx.Coordinate.Y - rx.Coordinate.Y).Length;
         }
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        // Used to notify Silverlight that a property has changed.
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+        #endregion
 
     }
 }

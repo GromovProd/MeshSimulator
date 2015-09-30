@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MeshSimulator.Model;
 using Environment = MeshSimulator.Model.Environment;
+using System.Threading;
 
 namespace MeshSimulator
 {
@@ -37,6 +38,8 @@ namespace MeshSimulator
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+
+
             if (Enviroment.IsEmulate)
             {
                 Enviroment.IsEmulate = false;
@@ -46,8 +49,11 @@ namespace MeshSimulator
             {
                 Enviroment.IsEmulate = true;
                 //Dispatcher.BeginInvoke();
-                
+                Thread t = new Thread(Enviroment.Emulate);
+                t.Start();
             }
+
+            DataContext = Enviroment;
 
         }
     }

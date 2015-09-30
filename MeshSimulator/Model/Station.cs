@@ -1,12 +1,15 @@
-﻿using System;
+﻿using Log.Support;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    public class Station
+    public class Station : INotifyPropertyChanged
     {
         #region Values
         private int id;
@@ -16,7 +19,11 @@ namespace MeshSimulator.Model
         public StationAction CurrentState
         {
             get { return currentState; }
-            set { currentState = value; }
+            set
+            {
+                currentState = value;
+                NotifyPropertyChanged();
+            }
         }
 
         private StationAction nextState = StationAction.None;
@@ -24,7 +31,11 @@ namespace MeshSimulator.Model
         public StationAction NextState
         {
             get { return nextState; }
-            set { nextState = value; }
+            set
+            {
+                nextState = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public int Id
@@ -38,7 +49,11 @@ namespace MeshSimulator.Model
         public Coordinate Coordinate
         {
             get { return coordinate; }
-            set { coordinate = value; }
+            set
+            {
+                coordinate = value;
+                NotifyPropertyChanged();
+            }
         }
 
         private double connectionRadius;
@@ -78,7 +93,11 @@ namespace MeshSimulator.Model
         public TimeSpan LocalTime
         {
             get { return localTime; }
-            set { localTime = value; }
+            set
+            {
+                localTime = value;
+                NotifyPropertyChanged();
+            }
         }
 
         public TimeSpan TimeFromSlotStart
@@ -170,14 +189,6 @@ namespace MeshSimulator.Model
         //    set { guardTimeInterval = value; }
         //}
 
-        private bool isWantTransmit;
-
-        public bool IsWantTransmit
-        {
-            get { return isWantTransmit; }
-            set { isWantTransmit = value; }
-        }
-
         private TimeSpan startTransmitTime;
 
         public TimeSpan StartTransmitTime
@@ -199,15 +210,7 @@ namespace MeshSimulator.Model
         public bool IsTransmit
         {
             get { return isTransmit; }
-            set { isTransmit = value; }
-        }
-
-        private bool isWantRecieve;
-
-        public bool IsWantRecieve
-        {
-            get { return isWantRecieve; }
-            set { isWantRecieve = value; }
+            set { isTransmit = value; NotifyPropertyChanged(); }
         }
 
         private TimeSpan startRecieveTime;
@@ -231,7 +234,7 @@ namespace MeshSimulator.Model
         public bool IsRecieve
         {
             get { return isRecieve; }
-            set { isRecieve = value; }
+            set { isRecieve = value; NotifyPropertyChanged(); }
         }
 
         private TimeSpan lastRxUpTime;
@@ -258,24 +261,25 @@ namespace MeshSimulator.Model
             set
             {
                 awakeTime = value + TimeSpan.FromMilliseconds(TimeDeviation * value.TotalMilliseconds);
+                NotifyPropertyChanged();
             }
         }
 
-        private TimeSpan awakeAbsoluteTime;
+        private List<Station> stationsToTransmit = new List<Station>();
 
-        public TimeSpan AwakeAbsoluteTime
+        public List<Station> StationsToTransmit
         {
-            get { return awakeTime; }
-            set { awakeTime = value; }
+            get { return stationsToTransmit; }
+            set { stationsToTransmit = value; }
         }
 
-        private Random rand;
+        private Random rand = new Random();
 
         #endregion
 
         public Station(int id, double connectionRadius, Coordinate coord,
             int cyclesInSuperCycle, int slotsInCycle, TimeSpan slotTime, TimeSpan localTime,
-            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, Random rand)
+            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, int rnd)
         {
             Id = id;
             this.AwakeTime = TimeSpan.FromMilliseconds(0);
@@ -295,12 +299,9 @@ namespace MeshSimulator.Model
             this.Speed = speed;
             this.SpeedAngle = SpeedAngle;
             this.TimeDeviation = deviation;
-            this.rand = rand;
+            this.rand = new Random(Id);
 
-            RxCycle = rand.Next(CyclesInSuperCycle);
-
-            //NextState = GetNextState();
-            //UpdateState(nextAction);
+            RxCycle = rand.Next(0, CyclesInSuperCycle);
         }
 
 
@@ -390,7 +391,9 @@ namespace MeshSimulator.Model
                         IsRecieve = false;
                         //additional logic
 
-                        RxCycle = rand.Next(CyclesInSuperCycle);
+                        rand = new Random(Id);
+
+                        RxCycle = rand.Next(0, CyclesInSuperCycle);
                         break;
                     }
             }
@@ -509,16 +512,37 @@ namespace MeshSimulator.Model
 
         public void Recieve(ChannelState channelState, Message message = null)
         {
-            IsRecieve = false;
+            if (message != null)
+            {
+                if (!message.IsNoise)
+                    Logger.Instance.WriteInfo("Message resieved " + Id);
+            }
         }
 
-        public Message Transmit(bool isNoise) { return null; }
+        public Message Transmit(bool isNoise)
+        {
+            return new Message(isNoise);
+        }
 
         public void ChangeAwakeTime(TimeSpan newAwakeTime)
         {
-            AwakeTime = newAwakeTime;
+            //AwakeTime = newAwakeTime;
         }
 
+        #endregion
+
+        #region INotifyPropertyChanged Members
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        // Used to notify Silverlight that a property has changed.
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
         #endregion
     }
 }
