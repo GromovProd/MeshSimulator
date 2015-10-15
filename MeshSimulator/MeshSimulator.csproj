@@ -53,6 +53,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\ModelVariables.cs" />
     <Compile Include="Support\ILogTarget.cs" />
     <Compile Include="Support\Logger.cs" />
     <Compile Include="Support\LogTarget.cs" />
@@ -88,7 +89,6 @@
     <Compile Include="Model\ChannelState.cs" />
     <Compile Include="Model\Coordinate.cs" />
     <Compile Include="Model\Environment.cs" />
-    <Compile Include="Model\ITask.cs" />
     <Compile Include="Model\Message.cs" />
     <Compile Include="Model\Station.cs" />
     <Compile Include="Model\StationAction.cs" />

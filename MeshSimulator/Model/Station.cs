@@ -163,8 +163,6 @@ namespace MeshSimulator.Model
             set { slotsInCycle = value; }
         }
 
-        private int currentSlot;
-
         public int CurrentSlot
         {
             get
@@ -304,6 +302,9 @@ namespace MeshSimulator.Model
             this.GuardReceiveTimeInterval = TimeSpan.FromMilliseconds((SlotTime.TotalMilliseconds - PacketReceiveTime.TotalMilliseconds) / 2);
             this.GuardTransmitTimeInterval = TimeSpan.FromMilliseconds((SlotTime.TotalMilliseconds - PacketTransmitTime.TotalMilliseconds) / 2);
 
+            SpeedAngle = rand.Next(360);
+            Speed = rand.Next(ModelVariables.MAXSPEED);
+
             RxCycle = rand.Next(0, CyclesInSuperCycle);
 
             Logger.Instance.WriteInfo(Id + " initialized");
@@ -326,6 +327,62 @@ namespace MeshSimulator.Model
             Logger.Instance.WriteInfo(Id + " next state: " + NextState.ToString());
             Logger.Instance.WriteInfo(Id + " local time: " + LocalTime.ToString());
             Logger.Instance.WriteInfo(Id + " awake time: " + AwakeTime.ToString());
+
+            //UpdatePosition();
+        }
+
+        int bX = 1;
+        int bY = 1;
+        bool isChangedX = false;
+        bool isChangedY = false;
+
+        public void UpdatePosition(TimeSpan ts)
+        {
+            if (!isChangedX)
+            {
+                if (Coordinate.X < 20)
+                {
+                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    bX *= -1;
+                    isChangedX = true;
+                }
+                if (Coordinate.X > 580)
+                {
+                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    bX *= -1;
+                    isChangedX = true;
+                }
+            }
+            if (!isChangedY)
+            {
+                if (Coordinate.Y < 20)
+                {
+                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    bY *= -1;
+                    isChangedY = true;
+                }
+                if (Coordinate.Y > 580)
+                {
+                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    bY *= -1;
+                    isChangedY = true;
+                }
+            }
+
+            if (Coordinate.X > 20 && Coordinate.X < 580)
+            {
+                isChangedX = false;
+            }
+            if (Coordinate.Y > 20 && Coordinate.Y < 580)
+            {
+                isChangedY = false;
+            }
+
+            var newX = Coordinate.X + bX * Speed * Math.Sin(SpeedAngle * Math.PI / 180) * ts.TotalSeconds;
+            var newY = Coordinate.Y + bY * Speed * Math.Cos(SpeedAngle * Math.PI / 180) * ts.TotalSeconds;
+
+            Coordinate.X = newX;
+            Coordinate.Y = newY;
         }
 
         private StationAction GetNextState()
@@ -383,12 +440,14 @@ namespace MeshSimulator.Model
                     {
                         LastRxUpTime = LocalTime;
                         IsReceive = true;
+                        IsTransmit = false;
                         Logger.Instance.WriteInfo(Id + " RxUp");
                         break;
                     }
                 case StationAction.RxDown:
                     {
                         IsReceive = false;
+                        IsTransmit = false;
                         Logger.Instance.WriteInfo(Id + " RxDown");
                         break;
                     }
@@ -396,12 +455,14 @@ namespace MeshSimulator.Model
                     {
                         LastTxUpTime = LocalTime;
                         IsTransmit = true;
+                        IsReceive = false;
                         Logger.Instance.WriteInfo(Id + " TxUp");
                         break;
                     }
                 case StationAction.TxDown:
                     {
                         IsTransmit = false;
+                        IsReceive = false;
                         Logger.Instance.WriteInfo(Id + " TxDown");
                         break;
                     }
@@ -409,7 +470,6 @@ namespace MeshSimulator.Model
                     {
                         IsTransmit = false;
                         IsReceive = false;
-                        //additional logic
 
                         rand = new Random(Id);
 
@@ -514,7 +574,7 @@ namespace MeshSimulator.Model
                         }
                         else
                         {
-                            time = 2*CycleTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds + GuardTransmitTimeInterval.TotalMilliseconds;
+                            time = 2 * CycleTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds + GuardTransmitTimeInterval.TotalMilliseconds;
                         }
 
                     }

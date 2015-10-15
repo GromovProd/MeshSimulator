@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    class ITask
+    public class ModelVariables
     {
-        
+        public const int MAXSPEED = 10;
     }
 }

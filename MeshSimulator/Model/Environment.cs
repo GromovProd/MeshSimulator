@@ -59,12 +59,15 @@ namespace MeshSimulator.Model
             set { startTime = value; }
         }
 
-        private TimeSpan globalTime;
+        private TimeSpan globalTime = new TimeSpan(0, 0, 0);
 
         public TimeSpan GlobalTime
         {
             get { return globalTime; }
-            set { globalTime = value; NotifyPropertyChanged(); }
+            set { globalTime = value; 
+                NotifyPropertyChanged();
+                NotifyPropertyChanged("NowTime"); 
+            }
         }
 
         public TimeSpan NowTime
@@ -133,7 +136,7 @@ namespace MeshSimulator.Model
 
         public void LoadData()
         {
-            CountOfStations = 50;
+            CountOfStations = 2;
             var cyclesInSuperCycle = 3;
 
             var columns = (int)Math.Sqrt(CountOfStations);
@@ -147,9 +150,10 @@ namespace MeshSimulator.Model
                     if (k < CountOfStations)
                     {
                         k++;
-                        var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
-                                    new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
+                        //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
+                        //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
 
+                        var station = new Station(k, 50, new Coordinate() { X = 300, Y = 300 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
                         Stations.Add(station);
                     }
                     else
@@ -165,10 +169,9 @@ namespace MeshSimulator.Model
 
         public void Emulate()
         {
+            StartTime = DateTime.Now;
 
             var isTimeAdded = false;
-
-            DelayTime = new TimeSpan(0, 0, 1);
 
             while (IsEmulate)
             {
@@ -195,6 +198,7 @@ namespace MeshSimulator.Model
                     {
                         s.LocalTime = s.LocalTime.Add(timeToSubstract);
                         s.AwakeTime = s.AwakeTime.Subtract(timeToSubstract);
+                        s.UpdatePosition(timeToSubstract);
                     }
 
                     GlobalTime = GlobalTime.Add(timeToSubstract);
@@ -208,12 +212,15 @@ namespace MeshSimulator.Model
                     if (IsRealTime)
                     {
                         //Реалтайм
-                        Thread.Sleep((int)(DelayTime.TotalMilliseconds));
+                        Thread.Sleep(timeToSubstract);
                     }
                 }
 
                 //вызываем событие
-                OnTurn(this, EventArgs.Empty);
+                if (OnTurn != null)
+                {
+                    OnTurn(this, EventArgs.Empty);
+                }
             }
         }
 

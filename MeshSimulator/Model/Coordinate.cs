@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    public struct Coordinate
+    public class Coordinate
     {
         private double x;
 
