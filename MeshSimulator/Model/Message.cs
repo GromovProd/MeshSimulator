@@ -9,15 +9,31 @@ namespace MeshSimulator.Model
     public class Message
     {
         private bool isNoise = true;
-
         public bool IsNoise
         {
             get { return isNoise; }
             set { isNoise = value; }
         }
-        public Message(bool isNoise)
+
+        private int fromId;
+        public int FromId
+        {
+            get { return fromId; }
+            set { fromId = value; }
+        }
+
+        private int toId;
+        public int ToId
+        {
+            get { return toId; }
+            set { toId = value; }
+        }
+
+        public Message(bool isNoise, int fromId, int toId)
         {
             IsNoise = isNoise;
+            FromId = fromId;
+            ToId = toId;
         }
 
 

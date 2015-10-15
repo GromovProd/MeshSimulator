@@ -1,26 +1,13 @@
 ﻿<Window x:Class="MeshSimulator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="Auto" Width="525">
+        Title="MainWindow" Height="660" Width="1016">
     <StackPanel>
-        <!--<Canvas Height="300" HorizontalAlignment="Stretch"  VerticalAlignment="Stretch"/>-->
-        <TextBlock Text="{Binding Effisiensy}" Height="20"/>
-        <DataGrid x:Name="dgrid" AutoGenerateColumns="False" Height="200"
-                  ItemsSource="{Binding Stations}"
-                  HorizontalAlignment="Stretch"  VerticalAlignment="Stretch">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Id" Width="175"
-                             Binding="{Binding Id}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Current State" 
-                             Binding="{Binding CurrentState}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Next State" 
-                             Binding="{Binding NextState}"></DataGridTextColumn>
-                <DataGridTextColumn Header="isTransmit" 
-                             Binding="{Binding IsTransmit}"></DataGridTextColumn>
-                <DataGridTextColumn Header="isRecieve" 
-                             Binding="{Binding IsRecieve}"></DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-        <Button  Click="Button_Click" Height="100"/>
+        <Menu>
+            <MenuItem Header="Main"/>
+            <MenuItem Header="Settings"/>
+            <MenuItem Header="About"/>
+        </Menu>
+        <Frame x:Name="frame" />
     </StackPanel>
 </Window>

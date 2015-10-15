@@ -12,23 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using MeshSimulator.Model;
-using Environment = MeshSimulator.Model.Environment;
-using System.Threading;
-using MeshSimulator.View;
 
-namespace MeshSimulator
+namespace MeshSimulator.View
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for SettingsPage.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class SettingsPage : Page
     {
-        public MainWindow()
+        public SettingsPage()
         {
             InitializeComponent();
-            frame.Navigate(new ViewPage());
         }
-
     }
 }

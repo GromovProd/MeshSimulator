@@ -14,6 +14,8 @@ namespace MeshSimulator.Model
 {
     public class Environment
     {
+        #region Properties
+
         private List<Station> stations = new List<Station>();
         public List<Station> Stations
         {
@@ -62,7 +64,7 @@ namespace MeshSimulator.Model
         public TimeSpan GlobalTime
         {
             get { return globalTime; }
-            set { globalTime = value; }
+            set { globalTime = value; NotifyPropertyChanged(); }
         }
 
         public TimeSpan NowTime
@@ -76,6 +78,14 @@ namespace MeshSimulator.Model
         {
             get { return isEmulate; }
             set { isEmulate = value; }
+        }
+
+        private bool isRealTime = false;
+
+        public bool IsRealTime
+        {
+            get { return isRealTime; }
+            set { isRealTime = value; }
         }
 
         private TimeSpan delayTime;
@@ -94,6 +104,14 @@ namespace MeshSimulator.Model
             set { countOfStations = value; }
         }
 
+        private TimeSpan endTime = new TimeSpan(14, 0, 0, 0, 0);
+
+        public TimeSpan EndTime
+        {
+            get { return endTime; }
+            set { endTime = value; }
+        }
+
         private Random rand;
 
         public Random Rand
@@ -102,10 +120,47 @@ namespace MeshSimulator.Model
             set { rand = value; }
         }
 
+        #endregion
+
+        public event EventHandler OnTurn;
+
+        public event EventHandler OnFinish;
+
         public Environment()
         {
             Rand = new Random();
-            CountOfStations = 10;
+        }
+
+        public void LoadData()
+        {
+            CountOfStations = 50;
+            var cyclesInSuperCycle = 3;
+
+            var columns = (int)Math.Sqrt(CountOfStations);
+            var k = 0;
+            var n = 0;
+
+            while (k < CountOfStations)
+            {
+                for (int i = 0; i < columns; i++)
+                {
+                    if (k < CountOfStations)
+                    {
+                        k++;
+                        var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
+                                    new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
+
+                        Stations.Add(station);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                n++;
+            }
+
+
         }
 
         public void Emulate()
@@ -142,29 +197,23 @@ namespace MeshSimulator.Model
                         s.AwakeTime = s.AwakeTime.Subtract(timeToSubstract);
                     }
 
-                    //Update(station);
+                    GlobalTime = GlobalTime.Add(timeToSubstract);
 
-                    GlobalTime = GlobalTime.Add(station.AwakeTime);
+                    if (GlobalTime >= EndTime)
+                    {
+                        IsEmulate = false;
+                        OnFinish(this, EventArgs.Empty);
+                    }
 
-
-                    Thread.Sleep((int)(DelayTime.TotalMilliseconds));
+                    if (IsRealTime)
+                    {
+                        //Реалтайм
+                        Thread.Sleep((int)(DelayTime.TotalMilliseconds));
+                    }
                 }
-            }
-        }
 
-        public void LoadData()
-        {
-            CountOfStations = 10;
-            var cyclesInSuperCycle = 3;
-            for (int i = 0; i < CountOfStations / 2; i++)
-            {
-                for (int j = 0; j < CountOfStations / 2; j++)
-                {
-                    var station = new Station(j + CountOfStations / 2 * i, 50, new Coordinate() { X = 25 * i, Y = 25 * j }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
-                        new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 100), 0, 0, 0.0, Rand.Next());
-
-                    Stations.Add(station);
-                }
+                //вызываем событие
+                OnTurn(this, EventArgs.Empty);
             }
         }
 
@@ -209,13 +258,14 @@ namespace MeshSimulator.Model
 
             if (station.CurrentState == StationAction.TxDown)
             {
+                Logger.Instance.WriteInfo(station.Id + " trying to transmit");
                 foreach (Station rx in station.StationsToTransmit)
                 {
-                    Logger.Instance.WriteInfo("Transmit to:" + rx.Id + " from:" + station.Id);
+                    Logger.Instance.WriteInfo(station.Id + " transmit to:" + rx.Id);
                     TransmitredTotal++;
                     var channelState = GetChannelState(rx);
                     bool isNoise = !CanDeliver(station.ConnectionRadius, GetRange(station, rx));
-                    var message = station.Transmit(isNoise);
+                    var message = station.Transmit(isNoise, rx.Id);
                     rx.Recieve(channelState, message);
                     if (!isNoise)
                     {
@@ -292,7 +342,7 @@ namespace MeshSimulator.Model
         /// <returns></returns>
         public List<Station> GetNearRxStations(Station tx)
         {
-            var rxStations = Stations.Where(i => i.IsRecieve == true);
+            var rxStations = Stations.Where(i => i.IsReceive == true);
 
             var nearRxStations = new List<Station>();
 

@@ -11,8 +11,7 @@ namespace MeshSimulator.Model
 {
     public class Station : INotifyPropertyChanged
     {
-        #region Values
-        private int id;
+        #region Fields, Variables
 
         private StationAction currentState = StationAction.None;
 
@@ -38,6 +37,7 @@ namespace MeshSimulator.Model
             }
         }
 
+        private int id;
         public int Id
         {
             get { return id; }
@@ -181,20 +181,20 @@ namespace MeshSimulator.Model
             set { slotTime = value; }
         }
 
-        //private TimeSpan guardTimeInterval;
+        private TimeSpan guardReceiveTimeInterval;
 
-        //public TimeSpan GuardTimeInterval
-        //{
-        //    get { return guardTimeInterval; }
-        //    set { guardTimeInterval = value; }
-        //}
-
-        private TimeSpan startTransmitTime;
-
-        public TimeSpan StartTransmitTime
+        public TimeSpan GuardReceiveTimeInterval
         {
-            get { return startTransmitTime; }
-            set { startTransmitTime = value; }
+            get { return guardReceiveTimeInterval; }
+            set { guardReceiveTimeInterval = value; }
+        }
+
+        private TimeSpan guardTransmitTimeInterval;
+
+        public TimeSpan GuardTransmitTimeInterval
+        {
+            get { return guardTransmitTimeInterval; }
+            set { guardTransmitTimeInterval = value; }
         }
 
         private TimeSpan packetTransmitTime;
@@ -213,28 +213,28 @@ namespace MeshSimulator.Model
             set { isTransmit = value; NotifyPropertyChanged(); }
         }
 
-        private TimeSpan startRecieveTime;
+        private TimeSpan startReceiveTime;
 
-        public TimeSpan StartRecieveTime
+        public TimeSpan StartReceiveTime
         {
-            get { return startRecieveTime; }
-            set { startRecieveTime = value; }
+            get { return startReceiveTime; }
+            set { startReceiveTime = value; }
         }
 
-        private TimeSpan packetRecieveTime;
+        private TimeSpan packetReceiveTime;
 
-        public TimeSpan PacketRecieveTime
+        public TimeSpan PacketReceiveTime
         {
-            get { return packetRecieveTime; }
-            set { packetRecieveTime = value; }
+            get { return packetReceiveTime; }
+            set { packetReceiveTime = value; }
         }
 
-        private bool isRecieve;
+        private bool isReceive;
 
-        public bool IsRecieve
+        public bool IsReceive
         {
-            get { return isRecieve; }
-            set { isRecieve = value; NotifyPropertyChanged(); }
+            get { return isReceive; }
+            set { isReceive = value; NotifyPropertyChanged(); }
         }
 
         private TimeSpan lastRxUpTime;
@@ -291,17 +291,22 @@ namespace MeshSimulator.Model
             this.CycleTime = new TimeSpan(0, 0, 0, 0, (int)(slotsInCycle * SlotTime.TotalMilliseconds));
             this.SuperCycleTime = new TimeSpan(0, 0, 0, 0, (int)(cyclesInSuperCycle * CycleTime.TotalMilliseconds));
 
-            this.IsRecieve = false;
+            this.IsReceive = false;
             this.IsTransmit = false;
             this.LocalTime = localTime;
-            this.PacketRecieveTime = packetRecieveTime;
+            this.PacketReceiveTime = packetRecieveTime;
             this.PacketTransmitTime = packetTransmitTime;
             this.Speed = speed;
             this.SpeedAngle = SpeedAngle;
             this.TimeDeviation = deviation;
             this.rand = new Random(Id);
 
+            this.GuardReceiveTimeInterval = TimeSpan.FromMilliseconds((SlotTime.TotalMilliseconds - PacketReceiveTime.TotalMilliseconds) / 2);
+            this.GuardTransmitTimeInterval = TimeSpan.FromMilliseconds((SlotTime.TotalMilliseconds - PacketTransmitTime.TotalMilliseconds) / 2);
+
             RxCycle = rand.Next(0, CyclesInSuperCycle);
+
+            Logger.Instance.WriteInfo(Id + " initialized");
         }
 
 
@@ -316,6 +321,11 @@ namespace MeshSimulator.Model
             LocalTime.TotalMilliseconds.ToString();
             AwakeTime.TotalMilliseconds.ToString();
             CurrentState.ToString();
+
+            Logger.Instance.WriteInfo(Id + " current state: " + CurrentState.ToString());
+            Logger.Instance.WriteInfo(Id + " next state: " + NextState.ToString());
+            Logger.Instance.WriteInfo(Id + " local time: " + LocalTime.ToString());
+            Logger.Instance.WriteInfo(Id + " awake time: " + AwakeTime.ToString());
         }
 
         private StationAction GetNextState()
@@ -326,8 +336,14 @@ namespace MeshSimulator.Model
             var nextRxDown = GetRxDownAwakeTime();
             var nextRxCycleUpdate = GetUpdateRxCycleAwakeTime();
 
-            var minTime = nextTxUp;
-            var state = StationAction.TxUp;
+            var minTime = TimeSpan.MaxValue;
+            var state = StationAction.None;
+
+            if ((minTime > nextTxUp) && (CurrentState != StationAction.TxUp))
+            {
+                minTime = nextTxUp;
+                state = StationAction.TxUp;
+            }
 
             if ((minTime > nextTxDown || nextTxUp.TotalMilliseconds == 0) && (CurrentState == StationAction.TxUp))
             {
@@ -347,7 +363,7 @@ namespace MeshSimulator.Model
                 state = StationAction.RxDown;
             }
 
-            if (minTime >= nextRxCycleUpdate)
+            if (minTime >= nextRxCycleUpdate && (CurrentState == StationAction.RxDown || (CurrentState == StationAction.TxDown)))
             {
                 minTime = nextRxCycleUpdate;
                 state = StationAction.RCU;
@@ -366,34 +382,40 @@ namespace MeshSimulator.Model
                 case StationAction.RxUp:
                     {
                         LastRxUpTime = LocalTime;
-                        IsRecieve = true;
+                        IsReceive = true;
+                        Logger.Instance.WriteInfo(Id + " RxUp");
                         break;
                     }
                 case StationAction.RxDown:
                     {
-                        IsRecieve = false;
+                        IsReceive = false;
+                        Logger.Instance.WriteInfo(Id + " RxDown");
                         break;
                     }
                 case StationAction.TxUp:
                     {
                         LastTxUpTime = LocalTime;
                         IsTransmit = true;
+                        Logger.Instance.WriteInfo(Id + " TxUp");
                         break;
                     }
                 case StationAction.TxDown:
                     {
                         IsTransmit = false;
+                        Logger.Instance.WriteInfo(Id + " TxDown");
                         break;
                     }
                 case StationAction.RCU:
                     {
                         IsTransmit = false;
-                        IsRecieve = false;
+                        IsReceive = false;
                         //additional logic
 
                         rand = new Random(Id);
 
                         RxCycle = rand.Next(0, CyclesInSuperCycle);
+
+                        Logger.Instance.WriteInfo(Id + " RxCycle: " + RxCycle.ToString());
                         break;
                     }
             }
@@ -407,6 +429,7 @@ namespace MeshSimulator.Model
             if (RxCycle < CurrentCycle)
             {
                 time = (CyclesInSuperCycle - 1 - CurrentCycle + RxCycle) * CycleTime.TotalMilliseconds + (SlotsInCycle - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                time += GuardReceiveTimeInterval.TotalMilliseconds;
             }
 
             if (RxCycle == CurrentCycle)
@@ -418,6 +441,7 @@ namespace MeshSimulator.Model
             if (RxCycle > CurrentCycle)
             {
                 time = (RxCycle - CurrentCycle - 1) * CycleTime.TotalMilliseconds + (SlotsInCycle - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                time += GuardReceiveTimeInterval.TotalMilliseconds;
             }
 
             return TimeSpan.FromMilliseconds(time);
@@ -427,7 +451,7 @@ namespace MeshSimulator.Model
         {
             double time = 0;
 
-            if (IsRecieve)
+            if (IsReceive)
             {
                 //Берем последнее время когда начали передавать и к нему прибавляем и остаток длительности прослушки.
                 //time = PacketRecieveTime.TotalMilliseconds - (LocalTime.TotalMilliseconds - LastRxUpTime.TotalMilliseconds); 
@@ -440,6 +464,8 @@ namespace MeshSimulator.Model
                 var rxUpTime = GetRxUpAwakeTime();
                 time = rxUpTime.TotalMilliseconds + CycleTime.TotalMilliseconds;
             }
+
+            time -= GuardReceiveTimeInterval.TotalMilliseconds;
 
             return TimeSpan.FromMilliseconds(time);
         }
@@ -455,16 +481,43 @@ namespace MeshSimulator.Model
                     if (CurrentCycle + 1 != RxCycle)
                     {
                         time = CycleTime.TotalMilliseconds - (CurrentSlot - Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                        //костыль
+                        //Код точно определяет начало слота
+                        //работало нормально когда не было защитного интервала, попробуем сместить на него
+                        time += GuardTransmitTimeInterval.TotalMilliseconds;
                     }
                     else
                     {
                         time = 2 * CycleTime.TotalMilliseconds - (CurrentSlot - Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                        //костыль
+                        //Код точно определяет начало слота
+                        //работало нормально когда не было защитного интервала, попробуем сместить на него
+                        time += GuardTransmitTimeInterval.TotalMilliseconds;
                     }
                 }
 
                 if (Id > CurrentSlot)
                 {
                     time = (Id - CurrentSlot) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                }
+
+                if (Id == CurrentSlot)
+                {
+                    if (TimeFromSlotStart.TotalMilliseconds <= GuardTransmitTimeInterval.TotalMilliseconds)
+                        //все что до отправки - имеет значение, после этого отдаем 0.
+                        time += GuardTransmitTimeInterval.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                    else
+                    {
+                        if (CurrentCycle + 1 != RxCycle)
+                        {
+                            time = CycleTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds + GuardTransmitTimeInterval.TotalMilliseconds;
+                        }
+                        else
+                        {
+                            time = 2*CycleTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds + GuardTransmitTimeInterval.TotalMilliseconds;
+                        }
+
+                    }
                 }
             }
             else
@@ -473,12 +526,21 @@ namespace MeshSimulator.Model
                 {
 
                     time = (SlotsInCycle - CurrentSlot + Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                    //костыль
+                    //Код точно определяет начало слота
+                    //работало нормально когда не было защитного интервала, попробуем сместить на него
+                    time += GuardTransmitTimeInterval.TotalMilliseconds;
                 }
                 else
                 {
                     time = CycleTime.TotalMilliseconds - (CurrentSlot - Id) * SlotTime.TotalMilliseconds - TimeFromSlotStart.Milliseconds;
+                    //костыль
+                    //Код точно определяет начало слота
+                    //работало нормально когда не было защитного интервала, попробуем сместить на него
+                    time += GuardTransmitTimeInterval.TotalMilliseconds;
                 }
             }
+
             return TimeSpan.FromMilliseconds(time);
         }
 
@@ -507,6 +569,10 @@ namespace MeshSimulator.Model
 
             time = SuperCycleTime.TotalMilliseconds - CurrentCycle * CycleTime.TotalMilliseconds - CurrentSlot * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
 
+            //костыль
+            //Если мы находимся в этой точке, то по логике нам нужно значение 0, а не супер-цикла.
+            if (time == SuperCycleTime.TotalMilliseconds) time = 0;
+
             return TimeSpan.FromMilliseconds(time);
         }
 
@@ -519,9 +585,9 @@ namespace MeshSimulator.Model
             }
         }
 
-        public Message Transmit(bool isNoise)
+        public Message Transmit(bool isNoise, int toId)
         {
-            return new Message(isNoise);
+            return new Message(isNoise, Id, toId);
         }
 
         public void ChangeAwakeTime(TimeSpan newAwakeTime)
