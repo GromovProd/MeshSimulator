@@ -1,0 +1,8 @@
+﻿<Window x:Class="MeshSimulator.VisualizationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="VisualizationWindow" Height="640" Width="640">
+    <Border Grid.Column="1" Width="600" Height="600" BorderBrush="Black" BorderThickness="1">
+        <Canvas x:Name="wCanvas" Width="600" Height="600"/>
+    </Border>
+</Window>

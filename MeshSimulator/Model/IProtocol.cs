@@ -6,9 +6,7 @@ using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    public static class ModelVariables
+    public interface IProtocol
     {
-        public static int MAXSPEED = 10;
-        public static int CountOfStations = 10;
     }
 }

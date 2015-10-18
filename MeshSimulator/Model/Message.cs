@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    public class Message
+    public class Message : MeshSimulator.Model.IMessage
     {
         private bool isNoise = true;
         public bool IsNoise

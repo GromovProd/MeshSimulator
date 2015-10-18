@@ -24,11 +24,45 @@ namespace MeshSimulator
     /// </summary>
     public partial class MainWindow : Window
     {
+        public class UIUpdateEventArgs : EventArgs
+        {
+            public bool IsUIUpdate { get; set; }
+        }
+
+        // Declare the delegate (if using non-generic pattern).
+        public delegate void UIUpdateEventHandler(object sender, UIUpdateEventArgs e);
+
+        // Declare the event.
+        public UIUpdateEventHandler OnUIUpdateEvent;
+
+        public VisualizationWindow visualizationWindow;
         public MainWindow()
         {
             InitializeComponent();
+            this.Loaded += new RoutedEventHandler(MainWindow_Loaded);
+        }
+
+        void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             frame.Navigate(new ViewPage());
         }
 
+        public void ShowVisualizationWindow()
+        {
+            if (visualizationWindow == null)
+            {
+                visualizationWindow = new VisualizationWindow();
+                visualizationWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
+            }
+
+            if (!visualizationWindow.IsVisible)
+            {
+                visualizationWindow.Show();
+                visualizationWindow.Left = this.Left + Width;
+                visualizationWindow.Top = this.Top;
+            }
+            else
+                visualizationWindow.Hide();
+        }
     }
 }

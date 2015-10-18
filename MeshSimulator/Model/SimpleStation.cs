@@ -7,9 +7,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MeshSimulator.Model
+namespace MeshSimulator.Model.Station
 {
-    public class Station : INotifyPropertyChanged
+    public class SimpleStation : IStation, INotifyPropertyChanged
     {
         #region Fields, Variables
 
@@ -85,7 +85,7 @@ namespace MeshSimulator.Model
         public double TimeDeviation
         {
             get { return timeDeviation; }
-            private set { timeDeviation = value; }
+            set { timeDeviation = value; }
         }
 
         private TimeSpan localTime;
@@ -263,9 +263,9 @@ namespace MeshSimulator.Model
             }
         }
 
-        private List<Station> stationsToTransmit = new List<Station>();
+        private List<IStation> stationsToTransmit = new List<IStation>();
 
-        public List<Station> StationsToTransmit
+        public List<IStation> StationsToTransmit
         {
             get { return stationsToTransmit; }
             set { stationsToTransmit = value; }
@@ -275,7 +275,7 @@ namespace MeshSimulator.Model
 
         #endregion
 
-        public Station(int id, double connectionRadius, Coordinate coord,
+        public SimpleStation(int id, double connectionRadius, Coordinate coord,
             int cyclesInSuperCycle, int slotsInCycle, TimeSpan slotTime, TimeSpan localTime,
             TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, int rnd)
         {

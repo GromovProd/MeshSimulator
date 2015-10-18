@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MeshSimulator.Model;
+using MeshSimulator.Model.Station;
 
 namespace StationTest
 {
@@ -10,8 +11,8 @@ namespace StationTest
         [TestMethod]
         public void TestMethod1()
         {
-            
-            var station = new Station(3, 50, new Coordinate() { X = 25, Y = 25 }, 3, 10, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
+
+            var station = new SimpleStation(3, 50, new Coordinate() { X = 25, Y = 25 }, 3, 10, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
                 new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 100), 0, 0, 0.1, 0);
             /*
             station.Update();

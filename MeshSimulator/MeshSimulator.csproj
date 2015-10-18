@@ -53,6 +53,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\IMessage.cs" />
+    <Compile Include="Model\IProtocol.cs" />
+    <Compile Include="Model\IStation.cs" />
     <Compile Include="Model\ModelVariables.cs" />
     <Compile Include="Support\ILogTarget.cs" />
     <Compile Include="Support\Logger.cs" />
@@ -63,6 +66,9 @@
     <Compile Include="View\ViewConstants.cs" />
     <Compile Include="View\ViewPage.xaml.cs">
       <DependentUpon>ViewPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\VisualizationWindow.xaml.cs">
+      <DependentUpon>VisualizationWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -84,13 +90,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\VisualizationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\ChannelState.cs" />
     <Compile Include="Model\Coordinate.cs" />
     <Compile Include="Model\Environment.cs" />
     <Compile Include="Model\Message.cs" />
-    <Compile Include="Model\Station.cs" />
+    <Compile Include="Model\SimpleStation.cs" />
     <Compile Include="Model\StationAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

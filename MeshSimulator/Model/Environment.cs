@@ -9,6 +9,7 @@ using MeshSimulator.Model;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Log.Support;
+using MeshSimulator.Model.Station;
 
 namespace MeshSimulator.Model
 {
@@ -16,8 +17,8 @@ namespace MeshSimulator.Model
     {
         #region Properties
 
-        private List<Station> stations = new List<Station>();
-        public List<Station> Stations
+        private List<IStation> stations = new List<IStation>();
+        public List<IStation> Stations
         {
             get { return stations; }
             set
@@ -64,9 +65,11 @@ namespace MeshSimulator.Model
         public TimeSpan GlobalTime
         {
             get { return globalTime; }
-            set { globalTime = value; 
+            set
+            {
+                globalTime = value;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged("NowTime"); 
+                NotifyPropertyChanged("NowTime");
             }
         }
 
@@ -88,7 +91,10 @@ namespace MeshSimulator.Model
         public bool IsRealTime
         {
             get { return isRealTime; }
-            set { isRealTime = value; }
+            set
+            {
+                isRealTime = value;
+            }
         }
 
         private TimeSpan delayTime;
@@ -136,7 +142,7 @@ namespace MeshSimulator.Model
 
         public void LoadData()
         {
-            CountOfStations = 2;
+            CountOfStations = 20;
             var cyclesInSuperCycle = 3;
 
             var columns = (int)Math.Sqrt(CountOfStations);
@@ -153,7 +159,7 @@ namespace MeshSimulator.Model
                         //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
                         //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
 
-                        var station = new Station(k, 50, new Coordinate() { X = 300, Y = 300 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
+                        var station = new SimpleStation(k, 50, new Coordinate() { X = 300, Y = 300 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
                         Stations.Add(station);
                     }
                     else
@@ -194,7 +200,7 @@ namespace MeshSimulator.Model
 
                     var timeToSubstract = station.AwakeTime;
 
-                    foreach (Station s in Stations)
+                    foreach (SimpleStation s in Stations)
                     {
                         s.LocalTime = s.LocalTime.Add(timeToSubstract);
                         s.AwakeTime = s.AwakeTime.Subtract(timeToSubstract);
@@ -224,7 +230,7 @@ namespace MeshSimulator.Model
             }
         }
 
-        public void Update(Station station)
+        public void Update(IStation station)
         {
 
             station.Update();
@@ -233,7 +239,7 @@ namespace MeshSimulator.Model
 
         }
 
-        private void ProvideTransmition(Station station)
+        private void ProvideTransmition(IStation station)
         {
             //если передает
             if (station.CurrentState == StationAction.TxUp)
@@ -266,7 +272,7 @@ namespace MeshSimulator.Model
             if (station.CurrentState == StationAction.TxDown)
             {
                 Logger.Instance.WriteInfo(station.Id + " trying to transmit");
-                foreach (Station rx in station.StationsToTransmit)
+                foreach (SimpleStation rx in station.StationsToTransmit)
                 {
                     Logger.Instance.WriteInfo(station.Id + " transmit to:" + rx.Id);
                     TransmitredTotal++;
@@ -320,7 +326,7 @@ namespace MeshSimulator.Model
 
         }
 
-        private Station GetNextStation()
+        private IStation GetNextStation()
         {
             var list = Stations.OrderBy(p => p.AwakeTime.TotalMilliseconds).ToList();
             return list.First();
@@ -347,24 +353,14 @@ namespace MeshSimulator.Model
         /// </summary>
         /// <param name="tx"></param>
         /// <returns></returns>
-        public List<Station> GetNearRxStations(Station tx)
+        public List<IStation> GetNearRxStations(IStation tx)
         {
-            var rxStations = Stations.Where(i => i.IsReceive == true);
+            var rxStations = Stations.Where(i => i.IsReceive == true).ToList();
 
-            var nearRxStations = new List<Station>();
-
-            foreach (Station rx in rxStations)
-            {
-                if (CanListen(tx, tx))
-                {
-                    nearRxStations.Add(rx);
-                }
-            }
-
-            return nearRxStations;
+            return GetCanConnectStations(tx, rxStations);
         }
 
-        public List<Station> GetNearTxStations(Station rx)
+        public List<IStation> GetNearTxStations(IStation rx)
         {
             var txStations = Stations.Where(i => i.CurrentState == StationAction.TxUp).ToList();
 
@@ -372,20 +368,25 @@ namespace MeshSimulator.Model
                 txStations.Remove(rx);
 
 
-            var nearTxStations = new List<Station>();
+            return GetCanConnectStations(rx, txStations);
+        }
 
-            foreach (Station tx in txStations)
+        private List<IStation> GetCanConnectStations(IStation s, List<IStation> otherStations)
+        {
+            var nearStations = new List<IStation>();
+
+            foreach (IStation otherStation in otherStations)
             {
-                if (CanListen(tx, rx))
+                if (CanListen(s, otherStation))
                 {
-                    nearTxStations.Add(tx);
+                    nearStations.Add(otherStation);
                 }
             }
 
-            return nearTxStations;
+            return nearStations;
         }
 
-        public ChannelState GetChannelState(Station rx)
+        public ChannelState GetChannelState(IStation rx)
         {
             var nearStations = GetNearTxStations(rx).Count;
 
@@ -395,7 +396,7 @@ namespace MeshSimulator.Model
             return Model.ChannelState.Сollision;
         }
 
-        public bool CanListen(Station tx, Station rx)
+        public bool CanListen(IStation tx, IStation rx)
         {
             double length = GetRange(tx, rx);
 
@@ -404,7 +405,7 @@ namespace MeshSimulator.Model
             return false;
         }
 
-        public double GetRange(Station tx, Station rx)
+        public double GetRange(IStation tx, IStation rx)
         {
             return new Vector(tx.Coordinate.X - rx.Coordinate.X, tx.Coordinate.Y - rx.Coordinate.Y).Length;
         }
