@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeshSimulator.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Environment = MeshSimulator.Model.Environment;
 
 namespace MeshSimulator.View
 {
@@ -23,6 +25,14 @@ namespace MeshSimulator.View
         public SettingsPage()
         {
             InitializeComponent();
+        }
+
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            ModelVariables variables = new ModelVariables();
+            variables.CountOfStations = int.Parse(countOfStations.Text);
+            variables.MaxSpeed = int.Parse(maxSpeed.Text);
+
         }
     }
 }

@@ -6,9 +6,14 @@ using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    public static class ModelVariables
+    public class ModelVariables
     {
-        public static int MAXSPEED = 10;
-        public static int CountOfStations = 10;
+        private const int defaultMaxSpeed = 10;
+        private const int defaultCountOfStations = 10;
+
+        public static ModelVariables Default = new ModelVariables() { CountOfStations = defaultCountOfStations, MaxSpeed = defaultMaxSpeed };
+
+        public int MaxSpeed = 10;
+        public int CountOfStations = 10;
     }
 }

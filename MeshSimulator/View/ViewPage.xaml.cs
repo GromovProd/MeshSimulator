@@ -34,12 +34,16 @@ namespace MeshSimulator.View
         {
             InitializeComponent();
 
-            Enviroment.LoadData();
+            this.Loaded += ViewPage_Loaded;
+        }
+
+        void ViewPage_Loaded(object sender, RoutedEventArgs e)
+        {
             t = new Thread(Enviroment.Emulate);
 
-            Enviroment.IsRealTime = true;
             ShowVisualizationWindow();
         }
+
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {

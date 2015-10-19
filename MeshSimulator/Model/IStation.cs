@@ -14,6 +14,7 @@ namespace MeshSimulator.Model
         bool IsTransmit { get; set; }
         void Recieve(ChannelState channelState, Message message = null);
         double Speed { get; }
+        int MaxSpeed { get; }
         double SpeedAngle { get; set; }
         Message Transmit(bool isNoise, int toId);
         void Update();

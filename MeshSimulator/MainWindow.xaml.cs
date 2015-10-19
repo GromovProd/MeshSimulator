@@ -24,27 +24,38 @@ namespace MeshSimulator
     /// </summary>
     public partial class MainWindow : Window
     {
-        public class UIUpdateEventArgs : EventArgs
-        {
-            public bool IsUIUpdate { get; set; }
-        }
-
-        // Declare the delegate (if using non-generic pattern).
-        public delegate void UIUpdateEventHandler(object sender, UIUpdateEventArgs e);
-
-        // Declare the event.
-        public UIUpdateEventHandler OnUIUpdateEvent;
 
         public VisualizationWindow visualizationWindow;
+
+        private ViewPage viewPage;
+        private SettingsPage settingsPage;
+        private AboutPage aboutPage;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            App.CreateEnviroment(ModelVariables.Default);
+
             this.Loaded += new RoutedEventHandler(MainWindow_Loaded);
         }
 
         void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            frame.Navigate(new ViewPage());
+            viewPage = new ViewPage();
+            settingsPage = new SettingsPage();
+            aboutPage = new AboutPage();
+
+            frame.Navigate(viewPage);
+
+            viewPage.IsUICheckBox.Checked += IsUICheckBox_Checked;
+            viewPage.IsUICheckBox.Unchecked += IsUICheckBox_Checked;
+        }
+
+        void IsUICheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            var cb = (CheckBox)sender;
+            visualizationWindow.SubscribeOnTurnEvent((bool)cb.IsChecked);
         }
 
         public void ShowVisualizationWindow()
@@ -63,6 +74,21 @@ namespace MeshSimulator
             }
             else
                 visualizationWindow.Hide();
+        }
+
+        private void MainItem_Click(object sender, RoutedEventArgs e)
+        {
+            frame.Navigate(viewPage);
+        }
+
+        private void SettingsItem_Click(object sender, RoutedEventArgs e)
+        {
+            frame.Navigate(settingsPage);
+        }
+
+        private void AboutItem_Click(object sender, RoutedEventArgs e)
+        {
+            frame.Navigate(aboutPage);
         }
     }
 }

@@ -6,22 +6,24 @@
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
 	Title="SettingsPage">
-
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="30"/>
-        </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Text="Count of stations" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="0" Grid.Column="2" Text="10" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Grid.Column="0" Text="Max speed" VerticalAlignment="Center"/>
-        <TextBox Grid.Row="1" Grid.Column="2" Text="10" VerticalAlignment="Center"/>
-    </Grid>
+    <StackPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Count of stations" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="0" Grid.Column="2" x:Name="countOfStations" Text="10" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Max speed" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="1" Grid.Column="2" x:Name="maxSpeed" Text="10" VerticalAlignment="Center"/>
+        </Grid>
+        <Button Content="Apply" Click="ApplyButton_Click" />
+    </StackPanel>
 </Page>

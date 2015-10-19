@@ -35,12 +35,7 @@ namespace MeshSimulator
             SubscribeOnTurnEvent(true);
         }
 
-        void UIUpdateChanged(object sender, MeshSimulator.MainWindow.UIUpdateEventArgs e)
-        {
-            SubscribeOnTurnEvent(e.IsUIUpdate);
-        }
-
-        private void SubscribeOnTurnEvent(bool IsUIUpdate)
+        public void SubscribeOnTurnEvent(bool IsUIUpdate)
         {
             if (IsUIUpdate)
             {

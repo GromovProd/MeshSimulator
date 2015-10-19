@@ -20,7 +20,7 @@
             <StackPanel Grid.Row="2" Orientation="Horizontal">
                 <Button Content="Start" Click="Button_Click"/>
                 <CheckBox Content="IsRealTime" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click" />
-                <CheckBox Content="IsUIUpdate" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click_1" />
+                <CheckBox x:Name="IsUICheckBox" Content="IsUIUpdate" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click_1" />
             </StackPanel>
         </StackPanel>
 

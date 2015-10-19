@@ -72,6 +72,14 @@ namespace MeshSimulator.Model.Station
             private set { speed = value; }
         }
 
+        private int maxSpeed;
+
+        public int MaxSpeed
+        {
+            get { return maxSpeed; }
+            private set { maxSpeed = value; }
+        }
+
         private double speedAngle;
 
         public double SpeedAngle
@@ -277,7 +285,7 @@ namespace MeshSimulator.Model.Station
 
         public SimpleStation(int id, double connectionRadius, Coordinate coord,
             int cyclesInSuperCycle, int slotsInCycle, TimeSpan slotTime, TimeSpan localTime,
-            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, int rnd)
+            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, int rnd, int maxspeed)
         {
             Id = id;
             this.AwakeTime = TimeSpan.FromMilliseconds(0);
@@ -302,8 +310,13 @@ namespace MeshSimulator.Model.Station
             this.GuardReceiveTimeInterval = TimeSpan.FromMilliseconds((SlotTime.TotalMilliseconds - PacketReceiveTime.TotalMilliseconds) / 2);
             this.GuardTransmitTimeInterval = TimeSpan.FromMilliseconds((SlotTime.TotalMilliseconds - PacketTransmitTime.TotalMilliseconds) / 2);
 
+            this.MaxSpeed = maxspeed;
+
             SpeedAngle = rand.Next(360);
-            Speed = rand.Next(ModelVariables.MAXSPEED);
+
+
+            Speed = rand.Next(MaxSpeed);
+
 
             RxCycle = rand.Next(0, CyclesInSuperCycle);
 
@@ -342,13 +355,13 @@ namespace MeshSimulator.Model.Station
             {
                 if (Coordinate.X < 20)
                 {
-                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    Speed = rand.Next(MaxSpeed);
                     bX *= -1;
                     isChangedX = true;
                 }
                 if (Coordinate.X > 580)
                 {
-                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    Speed = rand.Next(MaxSpeed);
                     bX *= -1;
                     isChangedX = true;
                 }
@@ -357,13 +370,13 @@ namespace MeshSimulator.Model.Station
             {
                 if (Coordinate.Y < 20)
                 {
-                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    Speed = rand.Next(MaxSpeed);
                     bY *= -1;
                     isChangedY = true;
                 }
                 if (Coordinate.Y > 580)
                 {
-                    Speed = rand.Next(ModelVariables.MAXSPEED);
+                    Speed = rand.Next(MaxSpeed);
                     bY *= -1;
                     isChangedY = true;
                 }

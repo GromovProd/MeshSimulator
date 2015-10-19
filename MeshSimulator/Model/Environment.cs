@@ -129,20 +129,32 @@ namespace MeshSimulator.Model
             set { rand = value; }
         }
 
+        private int maxSpeed;
+
+        public int MaxSpeed
+        {
+            get { return maxSpeed; }
+            set { maxSpeed = value; }
+        }
+
         #endregion
 
         public event EventHandler OnTurn;
 
         public event EventHandler OnFinish;
 
-        public Environment()
+        public Environment(int countOfStations, int maxSpeed)
         {
             Rand = new Random();
+
+            CountOfStations = countOfStations;
+            MaxSpeed = maxSpeed;
+
+            LoadData();
         }
 
         public void LoadData()
         {
-            CountOfStations = 20;
             var cyclesInSuperCycle = 3;
 
             var columns = (int)Math.Sqrt(CountOfStations);
@@ -159,7 +171,7 @@ namespace MeshSimulator.Model
                         //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
                         //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
 
-                        var station = new SimpleStation(k, 50, new Coordinate() { X = 300, Y = 300 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
+                        var station = new SimpleStation(k, 50, new Coordinate() { X = 300, Y = 300 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next(), MaxSpeed);
                         Stations.Add(station);
                     }
                     else

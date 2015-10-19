@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeshSimulator.Model;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -14,12 +15,18 @@ namespace MeshSimulator
     /// </summary>
     public partial class App : Application
     {
-        private static Environment enviroment = new Environment();
+        private static Environment environment;
 
         public static Environment Enviroment
         {
-            get { return enviroment; }
-            set { enviroment = value; }
+            get { return environment; }
+            private set { environment = value; }
+        }
+
+        public static Environment CreateEnviroment(ModelVariables variables)
+        {
+            Enviroment = new Environment(variables.CountOfStations, variables.MaxSpeed);
+            return Enviroment;
         }
     }
 }
