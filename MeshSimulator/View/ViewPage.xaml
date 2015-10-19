@@ -1,0 +1,46 @@
+﻿<Page x:Class="MeshSimulator.View.ViewPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      mc:Ignorable="d" 
+      d:DesignHeight="600" d:DesignWidth="1000"
+	Title="ViewPage" Width="1000">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="400"/>
+            <ColumnDefinition Width="600"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Grid.Row="0" Text="{Binding Enviroment.GlobalTime, Mode=OneWay}"/>
+                <TextBlock Grid.Row="0" Text="{Binding NowTime}"/>
+            </StackPanel>
+            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                <Button Content="Start" Click="Button_Click"/>
+                <CheckBox Content="IsRealTime" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click" />
+                <CheckBox Content="IsUIUpdate" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click_1" />
+            </StackPanel>
+        </StackPanel>
+
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <DataGrid Grid.Row="1" x:Name="dgrid" AutoGenerateColumns="False"
+                  MaxHeight="564"  VerticalAlignment="Stretch"
+                  ItemsSource="{Binding Stations}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Id" Width="30"
+                             Binding="{Binding Id}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Current State" 
+                             Binding="{Binding CurrentState}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Next State" 
+                             Binding="{Binding NextState}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="isTransmit" 
+                             Binding="{Binding IsTransmit}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="isReceive" 
+                             Binding="{Binding IsReceive}"></DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </ScrollViewer>
+    </Grid>
+</Page>
