@@ -15,6 +15,15 @@ namespace MeshSimulator.Model
             set { isNoise = value; }
         }
 
+        private bool isSpecial = false;
+
+        public bool IsSpecial
+        {
+            get { return isSpecial; }
+            set { isSpecial = value; }
+        }
+
+
         private int fromId;
         public int FromId
         {
@@ -29,9 +38,10 @@ namespace MeshSimulator.Model
             set { toId = value; }
         }
 
-        public Message(bool isNoise, int fromId, int toId)
+        public Message(bool isNoise, bool isSpecial, int fromId, int toId)
         {
             IsNoise = isNoise;
+            IsSpecial = isSpecial;
             FromId = fromId;
             ToId = toId;
         }

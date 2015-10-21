@@ -46,10 +46,34 @@ namespace MeshSimulator
             settingsPage = new SettingsPage();
             aboutPage = new AboutPage();
 
+            App.Enviroment.OnFinish += Enviroment_OnFinish;
+            App.Enviroment.OnInfoExpanded += Enviroment_OnInfoExpanded;
+
             frame.Navigate(viewPage);
 
             viewPage.IsUICheckBox.Checked += IsUICheckBox_Checked;
             viewPage.IsUICheckBox.Unchecked += IsUICheckBox_Checked;
+
+        }
+
+        void Enviroment_OnInfoExpanded(object sender, EventArgs e)
+        {
+            App.Enviroment.OnInfoExpanded -= Enviroment_OnInfoExpanded;
+            var result = MessageBox.Show("Info expanded", "Create Report?", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                //костыль
+                App.Enviroment.IsEmulate = false;
+            }
+        }
+
+        void Enviroment_OnFinish(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("That`s all folks!", "Create Report?", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+
+            }
         }
 
         void IsUICheckBox_Checked(object sender, RoutedEventArgs e)

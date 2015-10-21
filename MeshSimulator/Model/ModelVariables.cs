@@ -8,12 +8,11 @@ namespace MeshSimulator.Model
 {
     public class ModelVariables
     {
-        private const int defaultMaxSpeed = 10;
-        private const int defaultCountOfStations = 10;
-
-        public static ModelVariables Default = new ModelVariables() { CountOfStations = defaultCountOfStations, MaxSpeed = defaultMaxSpeed };
+        public static ModelVariables Default = new ModelVariables();
 
         public int MaxSpeed = 10;
-        public int CountOfStations = 10;
+        public int CountOfStations = 100;
+        public int CountOfReports = 10000;
+        public TimeSpan EndTime = new TimeSpan(14,0,0,0);
     }
 }

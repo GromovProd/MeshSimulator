@@ -33,7 +33,7 @@ namespace MeshSimulator.View
         public ViewPage()
         {
             InitializeComponent();
-
+            DataContext = Enviroment;
             this.Loaded += ViewPage_Loaded;
         }
 
@@ -63,9 +63,6 @@ namespace MeshSimulator.View
                 }
 
             }
-
-            DataContext = Enviroment;
-
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
@@ -98,10 +95,7 @@ namespace MeshSimulator.View
         private void ShowVisualizationWindow()
         {
             var w = (MainWindow)App.Current.MainWindow;
-
             w.ShowVisualizationWindow();
-
-
         }
     }
 }

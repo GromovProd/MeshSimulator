@@ -8,6 +8,7 @@ namespace MeshSimulator.Model
         double ConnectionRadius { get; }
         Coordinate Coordinate { get; set; }
         double TimeDeviation { get; set; }
+        TimeSpan LocalTime { get; set; }
         StationAction CurrentState { get; set; }
         int Id { get; }
         bool IsReceive { get; set; }
@@ -19,6 +20,8 @@ namespace MeshSimulator.Model
         Message Transmit(bool isNoise, int toId);
         void Update();
         void UpdatePosition(TimeSpan ts);
+        void AddError(TimeSpan timeToSubstract);
         List<IStation> StationsToTransmit { get; set; }
+        bool IsGotSpecialInfo { get; set; }
     }
 }

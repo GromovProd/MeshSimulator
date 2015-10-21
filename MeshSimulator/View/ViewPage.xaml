@@ -13,13 +13,29 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Grid.Column="0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Grid.Row="0" Text="{Binding Enviroment.GlobalTime, Mode=OneWay}"/>
-                <TextBlock Grid.Row="0" Text="{Binding NowTime}"/>
-            </StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="Время в системе"/>
+                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding GlobalTime}"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Время моделирования"/>
+                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding NowTime}"/>
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="Отчетов сделано"/>
+                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding ReportsDone}"/>
+                <TextBlock Grid.Column="0" Grid.Row="3" Text="Эффективность передачи в сети"/>
+                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Efficiency}"/>
+            </Grid>
             <StackPanel Grid.Row="2" Orientation="Horizontal">
                 <Button Content="Start" Click="Button_Click"/>
-                <CheckBox Content="IsRealTime" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click" />
+                <CheckBox Content="IsRealTime" Margin="10,0" VerticalAlignment="Center" IsChecked="False" Click="CheckBox_Click" />
                 <CheckBox x:Name="IsUICheckBox" Content="IsUIUpdate" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click_1" />
             </StackPanel>
         </StackPanel>
@@ -39,6 +55,10 @@
                              Binding="{Binding IsTransmit}"></DataGridTextColumn>
                     <DataGridTextColumn Header="isReceive" 
                              Binding="{Binding IsReceive}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Local Time" 
+                             Binding="{Binding LocalTime}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Is got info" 
+                             Binding="{Binding IsGotSpecialInfo}"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>

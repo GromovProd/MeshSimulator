@@ -13,7 +13,7 @@ using MeshSimulator.Model.Station;
 
 namespace MeshSimulator.Model
 {
-    public class Environment
+    public class Environment : INotifyPropertyChanged
     {
         #region Properties
 
@@ -44,12 +44,12 @@ namespace MeshSimulator.Model
             set { recievedTotal = value; NotifyPropertyChanged(); }
         }
 
-        private double effisiensy = 0;
+        private double efficiency = 0;
 
-        public double Effisiensy
+        public double Efficiency
         {
-            get { return effisiensy; }
-            set { effisiensy = value; NotifyPropertyChanged(); }
+            get { return efficiency; }
+            set { efficiency = value; NotifyPropertyChanged(); }
         }
 
         private DateTime startTime;
@@ -137,18 +137,49 @@ namespace MeshSimulator.Model
             set { maxSpeed = value; }
         }
 
+        private int reportsDone = 0;
+
+        public int ReportsDone
+        {
+            get { return reportsDone; }
+            set { reportsDone = value; NotifyPropertyChanged(); }
+        }
+
+        private int reportMillisecondsInterval = 0;
+
+        public int ReportMillisecondsInterval
+        {
+            get { return reportMillisecondsInterval; }
+            set { reportMillisecondsInterval = value; NotifyPropertyChanged(); }
+        }
+
+        private int countOfReports;
+
+        public int CountOfReports
+        {
+            get { return countOfReports; }
+            set { countOfReports = value; }
+        }
+
         #endregion
 
         public event EventHandler OnTurn;
 
         public event EventHandler OnFinish;
 
-        public Environment(int countOfStations, int maxSpeed)
+        public event EventHandler OnInfoExpanded;
+
+        public Environment(int countOfStations, int maxSpeed, int countOfReports, TimeSpan endTime)
         {
             Rand = new Random();
 
             CountOfStations = countOfStations;
             MaxSpeed = maxSpeed;
+
+            EndTime = endTime;
+            CountOfReports = countOfReports;
+
+            ReportMillisecondsInterval = (int)(EndTime.TotalMilliseconds / CountOfReports);
 
             LoadData();
         }
@@ -171,7 +202,8 @@ namespace MeshSimulator.Model
                         //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
                         //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
 
-                        var station = new SimpleStation(k, 50, new Coordinate() { X = 300, Y = 300 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next(), MaxSpeed);
+                        var station = new SimpleStation(k, 50, new Coordinate() { X = Rand.Next(600 - 20) + 10, Y = Rand.Next(600 - 20) + 10 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), MaxSpeed);
+
                         Stations.Add(station);
                     }
                     else
@@ -182,7 +214,14 @@ namespace MeshSimulator.Model
                 n++;
             }
 
+            SetStationWithSpecialInfo();
 
+        }
+
+        private void SetStationWithSpecialInfo()
+        {
+            var idWithInfo = Rand.Next(CountOfStations);
+            Stations[idWithInfo].IsGotSpecialInfo = true;
         }
 
         public void Emulate()
@@ -195,7 +234,7 @@ namespace MeshSimulator.Model
             {
 
                 if (TransmitredTotal != 0)
-                    Effisiensy = (double)RecievedTotal / (double)TransmitredTotal;
+                    Efficiency = (double)RecievedTotal / (double)TransmitredTotal;
 
                 //обновляем устройство
                 var station = GetNextStation();
@@ -204,7 +243,6 @@ namespace MeshSimulator.Model
                 {
                     isTimeAdded = false;
                     Update(station);
-
                 }
                 else
                 {
@@ -212,19 +250,33 @@ namespace MeshSimulator.Model
 
                     var timeToSubstract = station.AwakeTime;
 
-                    foreach (SimpleStation s in Stations)
+                    foreach (IStation s in Stations)
                     {
                         s.LocalTime = s.LocalTime.Add(timeToSubstract);
                         s.AwakeTime = s.AwakeTime.Subtract(timeToSubstract);
                         s.UpdatePosition(timeToSubstract);
                     }
 
+                    station.AddError(timeToSubstract);
+
                     GlobalTime = GlobalTime.Add(timeToSubstract);
 
                     if (GlobalTime >= EndTime)
                     {
                         IsEmulate = false;
-                        OnFinish(this, EventArgs.Empty);
+                        CallOnFinish();
+                    }
+
+                    //Собираем аналитику каждые ReportMinutesInterval минут
+                    if (GlobalTime.TotalMilliseconds > ReportsDone * ReportMillisecondsInterval)
+                    {
+                        //Каждый час
+                        ReportsDone++;
+                    }
+
+                    if (Stations.Where(i => i.IsGotSpecialInfo).Count() == Stations.Count)
+                    {
+                        CallOnInfoExpanded();
                     }
 
                     if (IsRealTime)
@@ -232,13 +284,36 @@ namespace MeshSimulator.Model
                         //Реалтайм
                         Thread.Sleep(timeToSubstract);
                     }
+
+
                 }
 
                 //вызываем событие
-                if (OnTurn != null)
-                {
-                    OnTurn(this, EventArgs.Empty);
-                }
+                CallOnTurn();
+            }
+        }
+
+        private void CallOnInfoExpanded()
+        {
+            if (OnInfoExpanded != null)
+            {
+                OnInfoExpanded(this, EventArgs.Empty);
+            }
+        }
+
+        private void CallOnTurn()
+        {
+            if (OnTurn != null)
+            {
+                OnTurn(this, EventArgs.Empty);
+            }
+        }
+
+        private void CallOnFinish()
+        {
+            if (OnFinish != null)
+            {
+                OnFinish(this, EventArgs.Empty);
             }
         }
 
@@ -263,21 +338,6 @@ namespace MeshSimulator.Model
                     var RxStations = GetNearRxStations(station);
 
                     station.StationsToTransmit = RxStations;
-
-                    //foreach (Station rx in RxStations)
-                    //{
-                    //    //проверяем слушателей
-                    //    if (station.StartTransmitTime <= rx.StartRecieveTime) //принимаем пакет от начала передачи, слушаем всегда раньше
-                    //    {
-                    //        //надо запомнить все станции которые слушают
-
-                    //        //через это время передача завершится
-                    //        var packetEndTime = station.PacketTransmitTime - (NowTime - station.StartTransmitTime);
-                    //        //rx.ChangeAwakeTime(packetEndTime);  //формируем событие пробуждение слушателям
-                    //    }
-                    //}
-
-
                 }
             }
 
@@ -300,42 +360,6 @@ namespace MeshSimulator.Model
 
                 station.StationsToTransmit.Clear();
             }
-
-
-
-            ////если слушает
-            //if (station.IsRecieve)
-            //{
-            //    var channelState = GetChannelState(station);
-            //    //проверяем что передача началась после прослушивания
-            //    //принимаем
-
-            //    //мне не нравится этот код
-            //    if (channelState != Model.ChannelState.Empty)
-            //    {
-            //        var TxStations = GetNearTxStations(station);
-
-            //        bool isNoise = CanDeliver(TxStations[0].ConnectionRadius, GetRange(TxStations[0], station));
-
-            //        var message = TxStations[0].Transmit(isNoise);
-
-            //        Logger.Instance.WriteInfo("Can send " + TxStations[0].Id);
-
-            //        if (TxStations[0].StartTransmitTime >= station.StartRecieveTime)
-            //            station.Recieve(channelState, message);
-            //        else
-            //        {
-            //            station.Recieve(channelState);
-            //        }
-            //    }
-            //    else
-            //    {
-            //        station.Recieve(channelState);
-            //    }
-
-            //если никто не разбудил
-            //надо проснуться через время прослушивания и сказать что не слушаешь
-
         }
 
         private IStation GetNextStation()
@@ -343,7 +367,6 @@ namespace MeshSimulator.Model
             var list = Stations.OrderBy(p => p.AwakeTime.TotalMilliseconds).ToList();
             return list.First();
         }
-
 
         //Обеспечение приема заданной вероятности
         public bool CanDeliver(double maxRange, double range)

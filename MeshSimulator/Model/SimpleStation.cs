@@ -266,7 +266,8 @@ namespace MeshSimulator.Model.Station
             get { return awakeTime; }
             set
             {
-                awakeTime = value + TimeSpan.FromMilliseconds(TimeDeviation * value.TotalMilliseconds);
+                //var error = TimeSpan.FromMilliseconds(TimeDeviation * value.TotalMilliseconds);
+                awakeTime = value;//.Add(error); ///сюда погрешность или не сюда
                 NotifyPropertyChanged();
             }
         }
@@ -278,6 +279,15 @@ namespace MeshSimulator.Model.Station
             get { return stationsToTransmit; }
             set { stationsToTransmit = value; }
         }
+
+        private bool isGotSpecialInfo = false;
+
+        public bool IsGotSpecialInfo
+        {
+            get { return isGotSpecialInfo; }
+            set { isGotSpecialInfo = value; }
+        }
+
 
         private Random rand = new Random();
 
@@ -341,7 +351,6 @@ namespace MeshSimulator.Model.Station
             Logger.Instance.WriteInfo(Id + " local time: " + LocalTime.ToString());
             Logger.Instance.WriteInfo(Id + " awake time: " + AwakeTime.ToString());
 
-            //UpdatePosition();
         }
 
         int bX = 1;
@@ -353,13 +362,13 @@ namespace MeshSimulator.Model.Station
         {
             if (!isChangedX)
             {
-                if (Coordinate.X < 20)
+                if (Coordinate.X < 10)
                 {
                     Speed = rand.Next(MaxSpeed);
                     bX *= -1;
                     isChangedX = true;
                 }
-                if (Coordinate.X > 580)
+                if (Coordinate.X > 590)
                 {
                     Speed = rand.Next(MaxSpeed);
                     bX *= -1;
@@ -368,13 +377,13 @@ namespace MeshSimulator.Model.Station
             }
             if (!isChangedY)
             {
-                if (Coordinate.Y < 20)
+                if (Coordinate.Y < 10)
                 {
                     Speed = rand.Next(MaxSpeed);
                     bY *= -1;
                     isChangedY = true;
                 }
-                if (Coordinate.Y > 580)
+                if (Coordinate.Y > 590)
                 {
                     Speed = rand.Next(MaxSpeed);
                     bY *= -1;
@@ -382,11 +391,11 @@ namespace MeshSimulator.Model.Station
                 }
             }
 
-            if (Coordinate.X > 20 && Coordinate.X < 580)
+            if (Coordinate.X > 10 && Coordinate.X < 590)
             {
                 isChangedX = false;
             }
-            if (Coordinate.Y > 20 && Coordinate.Y < 580)
+            if (Coordinate.Y > 10 && Coordinate.Y < 590)
             {
                 isChangedY = false;
             }
@@ -396,6 +405,13 @@ namespace MeshSimulator.Model.Station
 
             Coordinate.X = newX;
             Coordinate.Y = newY;
+        }
+
+        public void AddError(TimeSpan timeToSubstract)
+        {
+            //Добавляем ошибку кварца устройству
+            var error = TimeSpan.FromMilliseconds(TimeDeviation * timeToSubstract.TotalMilliseconds);
+            LocalTime = LocalTime.Add(error);
         }
 
         private StationAction GetNextState()
@@ -654,18 +670,19 @@ namespace MeshSimulator.Model.Station
             if (message != null)
             {
                 if (!message.IsNoise)
+                {
                     Logger.Instance.WriteInfo("Message resieved " + Id);
+
+                    if (message.IsSpecial)
+                        IsGotSpecialInfo = true;
+                }
             }
         }
 
         public Message Transmit(bool isNoise, int toId)
         {
-            return new Message(isNoise, Id, toId);
-        }
-
-        public void ChangeAwakeTime(TimeSpan newAwakeTime)
-        {
-            //AwakeTime = newAwakeTime;
+            var message = new Message(isNoise, IsGotSpecialInfo, Id, toId);
+            return message;
         }
 
         #endregion
