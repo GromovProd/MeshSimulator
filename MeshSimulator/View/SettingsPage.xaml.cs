@@ -31,21 +31,26 @@ namespace MeshSimulator.View
         {
             ModelVariables variables = new ModelVariables();
             variables.CountOfStations = int.Parse(countOfStations.Text);
-            variables.MaxSpeed = int.Parse(maxSpeed.Text);
-
             variables.Height = int.Parse(fHeight.Text);
             variables.Width = int.Parse(fWidth.Text);
 
             variables.EndTime = TimeSpan.Parse(endTime.Text);
             variables.EndTime = variables.EndTime.Add(new TimeSpan(int.Parse(endTimeDays.Text), 0, 0, 0));
-            // Создать экземпляр модели
+            variables.CountOfReports = int.Parse(countOfReports.Text);
 
+            variables.ConnectionRadius = int.Parse(connectionRadius.Text);
+            variables.MaxSpeed = int.Parse(maxSpeed.Text);
+
+            variables.CyclesInSuperCycle = int.Parse(cyclesInSuperCycle.Text);
+            variables.SlotTimeMilliSeconds = int.Parse(slotTime.Text);
+            variables.PacketTransmitTime = int.Parse(packetTxTime.Text);
+
+            // Создать экземпляр модели
             App.CreateEnviroment(variables);
 
-            //Перейти на страницу модуляции
+            //Перейти на страницу эмуляции
             var a = (MainWindow)App.Current.MainWindow;
             NavigationService.Navigate(a.viewPage);
-            //
         }
     }
 }

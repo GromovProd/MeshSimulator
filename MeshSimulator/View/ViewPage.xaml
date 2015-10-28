@@ -4,8 +4,14 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       mc:Ignorable="d" 
+      xmlns:conv ="clr-namespace:MeshSimulator.View"
       d:DesignHeight="600" d:DesignWidth="1000"
 	Title="ViewPage" Width="1000">
+
+    <Page.Resources>
+        <conv:BoolToStringConverter x:Key="BoolToStringConverter"></conv:BoolToStringConverter>
+    </Page.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400"/>
@@ -27,14 +33,14 @@
                 <TextBlock Grid.Column="0" Grid.Row="0" Text="Время в системе"/>
                 <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding GlobalTime}"/>
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Время моделирования"/>
-                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding NowTime}"/>
+                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding EmulationTime}"/>
                 <TextBlock Grid.Column="0" Grid.Row="2" Text="Отчетов сделано"/>
                 <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding ReportsDone}"/>
                 <TextBlock Grid.Column="0" Grid.Row="3" Text="Эффективность передачи в сети"/>
                 <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding Efficiency}"/>
             </Grid>
             <StackPanel Grid.Row="2" Orientation="Horizontal">
-                <Button Content="Start" Click="Button_Click"/>
+                <Button Content="{Binding IsEmulate, Converter={StaticResource BoolToStringConverter}}" Click="Button_Click"/>
                 <CheckBox Content="IsRealTime" Margin="10,0" VerticalAlignment="Center" IsChecked="False" Click="CheckBox_Click" />
                 <CheckBox x:Name="IsUICheckBox" Content="IsUIUpdate" Margin="10,0" VerticalAlignment="Center" IsChecked="True" Click="CheckBox_Click_1" />
             </StackPanel>
@@ -43,7 +49,7 @@
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
             <DataGrid Grid.Row="1" x:Name="dgrid" AutoGenerateColumns="False"
                   MaxHeight="564"  VerticalAlignment="Stretch"
-                  ItemsSource="{Binding Stations}">
+                  ItemsSource="{Binding Stations}" SelectionChanged="dgrid_Selected">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Id" Width="30"
                              Binding="{Binding Id}"></DataGridTextColumn>

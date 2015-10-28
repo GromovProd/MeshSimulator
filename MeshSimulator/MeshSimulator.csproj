@@ -57,12 +57,14 @@
     <Compile Include="Model\IProtocol.cs" />
     <Compile Include="Model\IStation.cs" />
     <Compile Include="Model\ModelVariables.cs" />
+    <Compile Include="Model\Report.cs" />
     <Compile Include="Support\ILogTarget.cs" />
     <Compile Include="Support\Logger.cs" />
     <Compile Include="Support\LogTarget.cs" />
     <Compile Include="View\AboutPage.xaml.cs">
       <DependentUpon>AboutPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\BoolToStringConverter.cs" />
     <Compile Include="View\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
@@ -135,6 +137,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

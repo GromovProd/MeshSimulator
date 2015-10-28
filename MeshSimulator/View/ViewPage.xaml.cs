@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using MeshSimulator.Model;
 using Environment = MeshSimulator.Model.Environment;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace MeshSimulator.View
 {
@@ -116,6 +117,16 @@ namespace MeshSimulator.View
         {
             var w = (MainWindow)App.Current.MainWindow;
             w.ShowVisualizationWindow();
+        }
+
+        private void dgrid_Selected(object sender, RoutedEventArgs e)
+        {
+            var selectedStation = Enviroment.Stations.SingleOrDefault(i => i.IsSelected == true);
+            if (selectedStation != null)
+                selectedStation.IsSelected = false;
+            var dg = (DataGrid)sender;
+            var station = (IStation)dg.SelectedItem;
+            station.IsSelected = true;
         }
 
 

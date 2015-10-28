@@ -10,12 +10,19 @@ namespace MeshSimulator.Model
     {
         public static ModelVariables Default = new ModelVariables();
 
-        public int MaxSpeed = 10;
         public int CountOfStations = 100;
         public int CountOfReports = 10000;
         public TimeSpan EndTime = new TimeSpan(14, 0, 0, 0);
 
         public int Height = 600;
         public int Width = 600;
+
+        public int ConnectionRadius = 50;
+        public int MaxSpeed = 10;
+
+        public int CyclesInSuperCycle = 3;
+        public int SlotTimeMilliSeconds = 100;
+        public int PacketTransmitTime = 80;
+
     }
 }

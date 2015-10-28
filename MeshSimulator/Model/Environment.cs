@@ -17,6 +17,13 @@ namespace MeshSimulator.Model
     {
         #region Properties
 
+        private ModelVariables variables;
+
+        public ModelVariables Variables
+        {
+            get { return variables; }
+        }
+
         private List<IStation> stations = new List<IStation>();
         public List<IStation> Stations
         {
@@ -69,11 +76,11 @@ namespace MeshSimulator.Model
             {
                 globalTime = value;
                 NotifyPropertyChanged();
-                NotifyPropertyChanged("NowTime");
+                NotifyPropertyChanged("EmulationTime");
             }
         }
 
-        public TimeSpan NowTime
+        public TimeSpan EmulationTime
         {
             get { return DateTime.Now - StartTime; }
         }
@@ -83,7 +90,7 @@ namespace MeshSimulator.Model
         public bool IsEmulate
         {
             get { return isEmulate; }
-            set { isEmulate = value; }
+            set { isEmulate = value; NotifyPropertyChanged(); }
         }
 
         private bool isRealTime = false;
@@ -97,52 +104,12 @@ namespace MeshSimulator.Model
             }
         }
 
-        private int height = 0;
-
-        public int Height
-        {
-            get { return height; }
-            set { height = value; }
-        }
-
-        private int width = 0;
-
-        public int Width
-        {
-            get { return width; }
-            set { width = value; }
-        }
-
-        private int countOfStations = 0;
-
-        public int CountOfStations
-        {
-            get { return countOfStations; }
-            set { countOfStations = value; }
-        }
-
-        private TimeSpan endTime = new TimeSpan(14, 0, 0, 0, 0);
-
-        public TimeSpan EndTime
-        {
-            get { return endTime; }
-            set { endTime = value; }
-        }
-
         private Random rand;
 
         public Random Rand
         {
             get { return rand; }
             set { rand = value; }
-        }
-
-        private int maxSpeed;
-
-        public int MaxSpeed
-        {
-            get { return maxSpeed; }
-            set { maxSpeed = value; }
         }
 
         private int reportsDone = 0;
@@ -159,14 +126,6 @@ namespace MeshSimulator.Model
         {
             get { return reportMillisecondsInterval; }
             set { reportMillisecondsInterval = value; NotifyPropertyChanged(); }
-        }
-
-        private int countOfReports;
-
-        public int CountOfReports
-        {
-            get { return countOfReports; }
-            set { countOfReports = value; }
         }
 
         private bool isInfoExpanded = false;
@@ -189,40 +148,30 @@ namespace MeshSimulator.Model
         {
             Rand = new Random();
 
-            Height = v.Height;
-            Width = v.Width;
+            variables = v;
 
-            CountOfStations = v.CountOfStations;
-            MaxSpeed = v.MaxSpeed;
-
-            EndTime = v.EndTime;
-
-            CountOfReports = v.CountOfReports;
-
-            ReportMillisecondsInterval = (int)(EndTime.TotalMilliseconds / CountOfReports);
+            ReportMillisecondsInterval = (int)(Variables.EndTime.TotalMilliseconds / Variables.CountOfReports);
 
             LoadData();
         }
 
         public void LoadData()
         {
-            var cyclesInSuperCycle = 3;
-
-            var columns = (int)Math.Sqrt(CountOfStations);
+            var columns = (int)Math.Sqrt(Variables.CountOfStations);
             var k = 0;
             var n = 0;
 
-            while (k < CountOfStations)
+            while (k < Variables.CountOfStations)
             {
                 for (int i = 0; i < columns; i++)
                 {
-                    if (k < CountOfStations)
+                    if (k < Variables.CountOfStations)
                     {
                         k++;
                         //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
                         //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
 
-                        var station = new SimpleStation(k, 50, new Coordinate() { X = Rand.Next(Width - 20) + 10, Y = Rand.Next(Height - 20) + 10 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), MaxSpeed, Height, Width);
+                        var station = new SimpleStation(k, 50, new Coordinate() { X = Rand.Next(Variables.Width - 20) + 10, Y = Rand.Next(Variables.Height - 20) + 10 }, Variables.CyclesInSuperCycle, Variables.CountOfStations, new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, Variables.PacketTransmitTime), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), Variables.MaxSpeed, Variables.Height, Variables.Width);
 
                         Stations.Add(station);
                     }
@@ -240,7 +189,7 @@ namespace MeshSimulator.Model
 
         private void SetStationWithSpecialInfo()
         {
-            var idWithInfo = Rand.Next(CountOfStations);
+            var idWithInfo = Rand.Next(Variables.CountOfStations);
             Stations[idWithInfo].IsGotSpecialInfo = true;
         }
 
@@ -281,7 +230,7 @@ namespace MeshSimulator.Model
 
                     GlobalTime = GlobalTime.Add(timeToSubstract);
 
-                    if (GlobalTime >= EndTime)
+                    if (GlobalTime >= Variables.EndTime)
                     {
                         IsEmulate = false;
                         CallOnFinish();
@@ -307,6 +256,10 @@ namespace MeshSimulator.Model
                     {
                         //Реалтайм
                         Thread.Sleep(timeToSubstract);
+                    }
+                    else
+                    {
+                        Thread.Sleep(1);
                     }
 
 

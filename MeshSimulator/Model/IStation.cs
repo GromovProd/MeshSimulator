@@ -26,5 +26,7 @@ namespace MeshSimulator.Model
 
         int FHeight { get; set; }
         int FWidth { get; set; }
+
+        bool IsSelected { get; set; }
     }
 }

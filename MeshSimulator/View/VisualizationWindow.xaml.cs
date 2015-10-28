@@ -3,6 +3,7 @@ using MeshSimulator.Model.Station;
 using MeshSimulator.View;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,11 +36,11 @@ namespace MeshSimulator
 
         void VisualizationWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            this.Height = Enviroment.Height + 40;
-            this.Width = Enviroment.Width + 40;
+            this.Height = Enviroment.Variables.Height + 40;
+            this.Width = Enviroment.Variables.Width + 40;
 
-            wbCanvas.Height = Enviroment.Height;
-            wbCanvas.Width = Enviroment.Width;
+            wbCanvas.Height = Enviroment.Variables.Height;
+            wbCanvas.Width = Enviroment.Variables.Width;
             //доделать
             SubscribeOnTurnEvent(true);
         }
@@ -104,6 +105,21 @@ namespace MeshSimulator
             for (int i = 0; i < stations.Count; i++)
             {
                 var s = stations[i];
+
+                if (s.IsGotSpecialInfo)
+                {
+                    var elli = new Ellipse()
+                    {
+                        Height = s.ConnectionRadius * 2,
+                        Width = s.ConnectionRadius * 2,
+                        Margin = new Thickness(s.Coordinate.X - s.ConnectionRadius, s.Coordinate.Y - s.ConnectionRadius, 0, 0),
+                        Fill = ViewConstants.CONNECTIONCOLORBRUSH,
+                        Opacity = ViewConstants.CONNCTIONRADIUSTRANSPARENT
+                    };
+                    elli.Fill = ViewConstants.STATIONTXCOLORBRUSH;
+                    wCanvas.Children.Add(elli);
+                }
+
                 if (s.IsTransmit)
                 {
                     var elli = new Ellipse()
@@ -114,9 +130,23 @@ namespace MeshSimulator
                         Fill = ViewConstants.CONNECTIONCOLORBRUSH,
                         Opacity = ViewConstants.CONNCTIONRADIUSTRANSPARENT
                     };
-
                     wCanvas.Children.Add(elli);
                 }
+
+                if (s.IsSelected)
+                {
+                    var elli = new Ellipse()
+                    {
+                        Height = s.ConnectionRadius * 2,
+                        Width = s.ConnectionRadius * 2,
+                        Margin = new Thickness(s.Coordinate.X - s.ConnectionRadius, s.Coordinate.Y - s.ConnectionRadius, 0, 0),
+                        Fill = ViewConstants.CONNECTIONCOLORBRUSH,
+                        Opacity = ViewConstants.CONNCTIONRADIUSTRANSPARENT
+                    };
+                    elli.Fill = ViewConstants.STATIONCOLORBRUSH;
+                    wCanvas.Children.Add(elli);
+                }
+
             }
         }
     }

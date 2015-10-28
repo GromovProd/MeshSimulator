@@ -38,12 +38,21 @@ namespace MeshSimulator.Model
             set { toId = value; }
         }
 
-        public Message(bool isNoise, bool isSpecial, int fromId, int toId)
+        private TimeSpan localTime;
+
+        public TimeSpan LocalTime
+        {
+            get { return localTime; }
+            set { localTime = value; }
+        }
+
+        public Message(bool isNoise, bool isSpecial, int fromId, int toId, TimeSpan localTime)
         {
             IsNoise = isNoise;
             IsSpecial = isSpecial;
             FromId = fromId;
             ToId = toId;
+            LocalTime = localTime;
         }
 
 

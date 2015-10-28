@@ -266,8 +266,7 @@ namespace MeshSimulator.Model.Station
             get { return awakeTime; }
             set
             {
-                //var error = TimeSpan.FromMilliseconds(TimeDeviation * value.TotalMilliseconds);
-                awakeTime = value;//.Add(error); ///сюда погрешность или не сюда
+                awakeTime = value;
                 NotifyPropertyChanged();
             }
         }
@@ -304,6 +303,13 @@ namespace MeshSimulator.Model.Station
             set { isGotSpecialInfo = value; NotifyPropertyChanged(); }
         }
 
+        private bool isSelected = false;
+
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set { isSelected = value; }
+        }
 
         private Random rand = new Random();
 
@@ -690,13 +696,19 @@ namespace MeshSimulator.Model.Station
 
                     if (message.IsSpecial)
                         IsGotSpecialInfo = true;
+
+                    if (message.FromId < Id)
+                    {
+                        LocalTime = message.LocalTime;
+                    }
+
                 }
             }
         }
 
         public Message Transmit(bool isNoise, int toId)
         {
-            var message = new Message(isNoise, IsGotSpecialInfo, Id, toId);
+            var message = new Message(isNoise, IsGotSpecialInfo, Id, toId, LocalTime);
             return message;
         }
 
