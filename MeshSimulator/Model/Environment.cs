@@ -97,12 +97,20 @@ namespace MeshSimulator.Model
             }
         }
 
-        private TimeSpan delayTime;
+        private int height = 0;
 
-        public TimeSpan DelayTime
+        public int Height
         {
-            get { return delayTime; }
-            set { delayTime = value; }
+            get { return height; }
+            set { height = value; }
+        }
+
+        private int width = 0;
+
+        public int Width
+        {
+            get { return width; }
+            set { width = value; }
         }
 
         private int countOfStations = 0;
@@ -161,6 +169,14 @@ namespace MeshSimulator.Model
             set { countOfReports = value; }
         }
 
+        private bool isInfoExpanded = false;
+
+        public bool IsInfoExpanded
+        {
+            get { return isInfoExpanded; }
+            set { isInfoExpanded = value; }
+        }
+
         #endregion
 
         public event EventHandler OnTurn;
@@ -169,15 +185,19 @@ namespace MeshSimulator.Model
 
         public event EventHandler OnInfoExpanded;
 
-        public Environment(int countOfStations, int maxSpeed, int countOfReports, TimeSpan endTime)
+        public Environment(ModelVariables v)
         {
             Rand = new Random();
 
-            CountOfStations = countOfStations;
-            MaxSpeed = maxSpeed;
+            Height = v.Height;
+            Width = v.Width;
 
-            EndTime = endTime;
-            CountOfReports = countOfReports;
+            CountOfStations = v.CountOfStations;
+            MaxSpeed = v.MaxSpeed;
+
+            EndTime = v.EndTime;
+
+            CountOfReports = v.CountOfReports;
 
             ReportMillisecondsInterval = (int)(EndTime.TotalMilliseconds / CountOfReports);
 
@@ -202,7 +222,7 @@ namespace MeshSimulator.Model
                         //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
                         //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
 
-                        var station = new SimpleStation(k, 50, new Coordinate() { X = Rand.Next(600 - 20) + 10, Y = Rand.Next(600 - 20) + 10 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), MaxSpeed);
+                        var station = new SimpleStation(k, 50, new Coordinate() { X = Rand.Next(Width - 20) + 10, Y = Rand.Next(Height - 20) + 10 }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), MaxSpeed, Height, Width);
 
                         Stations.Add(station);
                     }
@@ -274,9 +294,13 @@ namespace MeshSimulator.Model
                         ReportsDone++;
                     }
 
-                    if (Stations.Where(i => i.IsGotSpecialInfo).Count() == Stations.Count)
+                    if (!IsInfoExpanded)
                     {
-                        CallOnInfoExpanded();
+                        if (Stations.Where(i => i.IsGotSpecialInfo).Count() == Stations.Count)
+                        {
+                            IsInfoExpanded = true;
+                            CallOnInfoExpanded();
+                        }
                     }
 
                     if (IsRealTime)

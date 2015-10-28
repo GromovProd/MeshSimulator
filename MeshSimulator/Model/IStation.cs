@@ -23,5 +23,8 @@ namespace MeshSimulator.Model
         void AddError(TimeSpan timeToSubstract);
         List<IStation> StationsToTransmit { get; set; }
         bool IsGotSpecialInfo { get; set; }
+
+        int FHeight { get; set; }
+        int FWidth { get; set; }
     }
 }

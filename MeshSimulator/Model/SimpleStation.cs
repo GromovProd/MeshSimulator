@@ -272,6 +272,22 @@ namespace MeshSimulator.Model.Station
             }
         }
 
+        private int fHeight = 0;
+
+        public int FHeight
+        {
+            get { return fHeight; }
+            set { fHeight = value; }
+        }
+
+        private int fWidth = 0;
+
+        public int FWidth
+        {
+            get { return fWidth; }
+            set { fWidth = value; }
+        }
+
         private List<IStation> stationsToTransmit = new List<IStation>();
 
         public List<IStation> StationsToTransmit
@@ -285,7 +301,7 @@ namespace MeshSimulator.Model.Station
         public bool IsGotSpecialInfo
         {
             get { return isGotSpecialInfo; }
-            set { isGotSpecialInfo = value; }
+            set { isGotSpecialInfo = value; NotifyPropertyChanged(); }
         }
 
 
@@ -295,7 +311,7 @@ namespace MeshSimulator.Model.Station
 
         public SimpleStation(int id, double connectionRadius, Coordinate coord,
             int cyclesInSuperCycle, int slotsInCycle, TimeSpan slotTime, TimeSpan localTime,
-            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, int rnd, int maxspeed)
+            TimeSpan packetRecieveTime, TimeSpan packetTransmitTime, double speed, double speedAngle, double deviation, int rnd, int maxspeed, int fHeight, int fWidth)
         {
             Id = id;
             this.AwakeTime = TimeSpan.FromMilliseconds(0);
@@ -322,12 +338,11 @@ namespace MeshSimulator.Model.Station
 
             this.MaxSpeed = maxspeed;
 
+            this.FHeight = fHeight;
+            this.FWidth = fWidth;
+
             SpeedAngle = rand.Next(360);
-
-
             Speed = rand.Next(MaxSpeed);
-
-
             RxCycle = rand.Next(0, CyclesInSuperCycle);
 
             Logger.Instance.WriteInfo(Id + " initialized");
@@ -368,7 +383,7 @@ namespace MeshSimulator.Model.Station
                     bX *= -1;
                     isChangedX = true;
                 }
-                if (Coordinate.X > 590)
+                if (Coordinate.X > FWidth - 10)
                 {
                     Speed = rand.Next(MaxSpeed);
                     bX *= -1;
@@ -383,7 +398,7 @@ namespace MeshSimulator.Model.Station
                     bY *= -1;
                     isChangedY = true;
                 }
-                if (Coordinate.Y > 590)
+                if (Coordinate.Y > FHeight - 10)
                 {
                     Speed = rand.Next(MaxSpeed);
                     bY *= -1;
@@ -391,11 +406,11 @@ namespace MeshSimulator.Model.Station
                 }
             }
 
-            if (Coordinate.X > 10 && Coordinate.X < 590)
+            if (Coordinate.X > 10 && Coordinate.X < FWidth - 10)
             {
                 isChangedX = false;
             }
-            if (Coordinate.Y > 10 && Coordinate.Y < 590)
+            if (Coordinate.Y > 10 && Coordinate.Y < FHeight - 10)
             {
                 isChangedY = false;
             }

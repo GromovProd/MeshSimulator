@@ -33,12 +33,16 @@ namespace MeshSimulator.View
         public ViewPage()
         {
             InitializeComponent();
-            DataContext = Enviroment;
             this.Loaded += ViewPage_Loaded;
         }
 
         void ViewPage_Loaded(object sender, RoutedEventArgs e)
         {
+            DataContext = Enviroment;
+
+            App.Enviroment.OnFinish += Enviroment_OnFinish;
+            App.Enviroment.OnInfoExpanded += Enviroment_OnInfoExpanded;
+
             t = new Thread(Enviroment.Emulate);
 
             ShowVisualizationWindow();
@@ -71,7 +75,6 @@ namespace MeshSimulator.View
             if (chb.IsChecked == true)
             {
                 Enviroment.IsRealTime = true;
-
             }
             else
             {
@@ -92,10 +95,29 @@ namespace MeshSimulator.View
             }
         }
 
+        void Enviroment_OnInfoExpanded(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("Info expanded", "Create Report?", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+            }
+        }
+
+        void Enviroment_OnFinish(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("That`s all folks!", "Create Report?", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+
+            }
+        }
+
         private void ShowVisualizationWindow()
         {
             var w = (MainWindow)App.Current.MainWindow;
             w.ShowVisualizationWindow();
         }
+
+
     }
 }

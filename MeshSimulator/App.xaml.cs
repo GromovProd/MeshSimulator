@@ -25,7 +25,7 @@ namespace MeshSimulator
 
         public static Environment CreateEnviroment(ModelVariables variables)
         {
-            Enviroment = new Environment(variables.CountOfStations, variables.MaxSpeed, variables.CountOfReports, variables.EndTime);
+            Enviroment = new Environment(variables);
             return Enviroment;
         }
     }

@@ -13,6 +13,9 @@ namespace MeshSimulator.Model
         public int MaxSpeed = 10;
         public int CountOfStations = 100;
         public int CountOfReports = 10000;
-        public TimeSpan EndTime = new TimeSpan(14,0,0,0);
+        public TimeSpan EndTime = new TimeSpan(14, 0, 0, 0);
+
+        public int Height = 600;
+        public int Width = 600;
     }
 }

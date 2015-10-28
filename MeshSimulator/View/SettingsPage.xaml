@@ -14,15 +14,26 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="20"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="30"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="24"/>
+                <RowDefinition Height="24"/>
             </Grid.RowDefinitions>
             <TextBlock Grid.Row="0" Grid.Column="0" Text="Count of stations" VerticalAlignment="Center"/>
             <TextBox Grid.Row="0" Grid.Column="2" x:Name="countOfStations" Text="10" VerticalAlignment="Center"/>
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="Max speed" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="Max speed, meter per. sec" VerticalAlignment="Center"/>
             <TextBox Grid.Row="1" Grid.Column="2" x:Name="maxSpeed" Text="10" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Heigh, m" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="2" Grid.Column="2" x:Name="fHeight" Text="600" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="3" Grid.Column="0" Text="Width, m" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="3" Grid.Column="2" x:Name="fWidth" Text="600" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="4" Grid.Column="0" Text="Emulation Time" VerticalAlignment="Center"/>
+            <TextBox Grid.Row="4" Grid.Column="2" x:Name="endTimeDays" Text="14" VerticalAlignment="Center" Width="20" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Row="4" Grid.Column="2" Text="d" VerticalAlignment="Center" Width="20" HorizontalAlignment="Left" Margin="24,0,0,0"/>
+            <TextBox Grid.Row="4" Grid.Column="2" x:Name="endTime" Text="00:00:00" VerticalAlignment="Center" Margin="36,0,0,0"/>
         </Grid>
         <Button Content="Apply" Click="ApplyButton_Click" />
     </StackPanel>

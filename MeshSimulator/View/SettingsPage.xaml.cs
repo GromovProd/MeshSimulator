@@ -33,6 +33,19 @@ namespace MeshSimulator.View
             variables.CountOfStations = int.Parse(countOfStations.Text);
             variables.MaxSpeed = int.Parse(maxSpeed.Text);
 
+            variables.Height = int.Parse(fHeight.Text);
+            variables.Width = int.Parse(fWidth.Text);
+
+            variables.EndTime = TimeSpan.Parse(endTime.Text);
+            variables.EndTime = variables.EndTime.Add(new TimeSpan(int.Parse(endTimeDays.Text), 0, 0, 0));
+            // Создать экземпляр модели
+
+            App.CreateEnviroment(variables);
+
+            //Перейти на страницу модуляции
+            var a = (MainWindow)App.Current.MainWindow;
+            NavigationService.Navigate(a.viewPage);
+            //
         }
     }
 }

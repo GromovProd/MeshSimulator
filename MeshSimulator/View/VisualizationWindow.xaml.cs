@@ -30,7 +30,16 @@ namespace MeshSimulator
         public VisualizationWindow()
         {
             InitializeComponent();
+            this.Loaded += VisualizationWindow_Loaded;
+        }
 
+        void VisualizationWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.Height = Enviroment.Height + 40;
+            this.Width = Enviroment.Width + 40;
+
+            wbCanvas.Height = Enviroment.Height;
+            wbCanvas.Width = Enviroment.Width;
             //доделать
             SubscribeOnTurnEvent(true);
         }
