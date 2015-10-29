@@ -35,8 +35,6 @@ namespace MeshSimulator
         {
             InitializeComponent();
 
-            App.CreateEnviroment(ModelVariables.Default);
-
             this.Loaded += new RoutedEventHandler(MainWindow_Loaded);
         }
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MeshSimulator.Model
 {
-    public class Message : MeshSimulator.Model.IMessage
+    public class SyncMessage : IMessage
     {
         private bool isNoise = true;
         public bool IsNoise
@@ -14,15 +14,6 @@ namespace MeshSimulator.Model
             get { return isNoise; }
             set { isNoise = value; }
         }
-
-        private bool isSpecial = false;
-
-        public bool IsSpecial
-        {
-            get { return isSpecial; }
-            set { isSpecial = value; }
-        }
-
 
         private int fromId;
         public int FromId
@@ -46,16 +37,22 @@ namespace MeshSimulator.Model
             set { localTime = value; }
         }
 
-        public Message(bool isNoise, bool isSpecial, int fromId, int toId, TimeSpan localTime)
+        private MessageType type;
+
+        public MessageType Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
+
+        public SyncMessage(bool isNoise, int fromId, int toId, TimeSpan localTime)
         {
             IsNoise = isNoise;
-            IsSpecial = isSpecial;
             FromId = fromId;
             ToId = toId;
             LocalTime = localTime;
+
+            Type = MessageType.Sync;
         }
-
-
-
     }
 }

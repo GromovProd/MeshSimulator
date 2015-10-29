@@ -57,7 +57,14 @@
     <Compile Include="Model\IProtocol.cs" />
     <Compile Include="Model\IStation.cs" />
     <Compile Include="Model\ModelVariables.cs" />
+    <Compile Include="Model\PositionHelp\TwoGroupsPositionHelper.cs" />
+    <Compile Include="Model\PositionHelp\RoundPositionHelper.cs" />
+    <Compile Include="Model\PositionHelp\InLinePositionHelper.cs" />
+    <Compile Include="Model\PositionHelp\IPositionHelper.cs" />
+    <Compile Include="Model\PositionHelp\RandomPositionHelper.cs" />
     <Compile Include="Model\Report.cs" />
+    <Compile Include="Model\StationData.cs" />
+    <Compile Include="Model\SyncMessage.cs" />
     <Compile Include="Support\ILogTarget.cs" />
     <Compile Include="Support\Logger.cs" />
     <Compile Include="Support\LogTarget.cs" />
@@ -108,7 +115,7 @@
     <Compile Include="Model\ChannelState.cs" />
     <Compile Include="Model\Coordinate.cs" />
     <Compile Include="Model\Environment.cs" />
-    <Compile Include="Model\Message.cs" />
+    <Compile Include="Model\InfoExpandMessage.cs" />
     <Compile Include="Model\SimpleStation.cs" />
     <Compile Include="Model\StationAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">

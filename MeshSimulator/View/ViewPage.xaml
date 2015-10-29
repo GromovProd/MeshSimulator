@@ -65,6 +65,8 @@
                              Binding="{Binding LocalTime}"></DataGridTextColumn>
                     <DataGridTextColumn Header="Is got info" 
                              Binding="{Binding IsGotSpecialInfo}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Data about others" 
+                             Binding="{Binding Data.Count}"></DataGridTextColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>

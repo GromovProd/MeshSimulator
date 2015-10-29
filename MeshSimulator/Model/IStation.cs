@@ -13,11 +13,11 @@ namespace MeshSimulator.Model
         int Id { get; }
         bool IsReceive { get; set; }
         bool IsTransmit { get; set; }
-        void Recieve(ChannelState channelState, Message message = null);
+        void Recieve(ChannelState channelState, IMessage message = null);
         double Speed { get; }
         int MaxSpeed { get; }
         double SpeedAngle { get; set; }
-        Message Transmit(bool isNoise, int toId);
+        IMessage Transmit(bool isNoise, int toId);
         void Update();
         void UpdatePosition(TimeSpan ts);
         void AddError(TimeSpan timeToSubstract);
@@ -26,7 +26,8 @@ namespace MeshSimulator.Model
 
         int FHeight { get; set; }
         int FWidth { get; set; }
-
         bool IsSelected { get; set; }
+
+        List<StationData> Data { get; set; }
     }
 }

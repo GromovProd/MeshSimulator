@@ -311,6 +311,16 @@ namespace MeshSimulator.Model.Station
             set { isSelected = value; }
         }
 
+        private List<StationData> data = new List<StationData>();
+
+        public List<StationData> Data
+        {
+            get { return data; }
+            set { data = value; NotifyPropertyChanged(); }
+        }
+
+        private int lastDataTransmited = -1;
+
         private Random rand = new Random();
 
         #endregion
@@ -363,9 +373,9 @@ namespace MeshSimulator.Model.Station
 
             NextState = GetNextState();
 
-            LocalTime.TotalMilliseconds.ToString();
-            AwakeTime.TotalMilliseconds.ToString();
-            CurrentState.ToString();
+            //LocalTime.TotalMilliseconds.ToString();
+            //AwakeTime.TotalMilliseconds.ToString();
+            //CurrentState.ToString();
 
             Logger.Instance.WriteInfo(Id + " current state: " + CurrentState.ToString());
             Logger.Instance.WriteInfo(Id + " next state: " + NextState.ToString());
@@ -545,7 +555,7 @@ namespace MeshSimulator.Model.Station
             if (RxCycle == CurrentCycle)
             {
                 //включаем сейчас!
-                time = 0;// (CurrentSlot + 1) * SlotTime.TotalMilliseconds - TimeFromSlotStart.TotalMilliseconds;
+                time = 0;
             }
 
             if (RxCycle > CurrentCycle)
@@ -686,7 +696,7 @@ namespace MeshSimulator.Model.Station
             return TimeSpan.FromMilliseconds(time);
         }
 
-        public void Recieve(ChannelState channelState, Message message = null)
+        public void Recieve(ChannelState channelState, IMessage message = null)
         {
             if (message != null)
             {
@@ -694,22 +704,65 @@ namespace MeshSimulator.Model.Station
                 {
                     Logger.Instance.WriteInfo("Message resieved " + Id);
 
-                    if (message.IsSpecial)
-                        IsGotSpecialInfo = true;
-
                     if (message.FromId < Id)
                     {
-                        LocalTime = message.LocalTime;
+                        LocalTime = ((SyncMessage)message).LocalTime;
                     }
+
+                    //Получили информацию о передавшем
+                    if (!Data.Exists(i => i.Id == message.FromId))
+                    {
+                        Data.Add(new StationData(message.FromId, 1, LocalTime, LocalTime));
+                    }
+
+                    //Получили информацию о другом
+                    if (message.Type == MessageType.InfoExpand)
+                    {
+                        var infoMessage = (InfoExpandMessage)message;
+                        //Приняли информацию о другом
+                        if (infoMessage.AboutId != Id)
+                        {
+                            if (!Data.Exists(i => i.Id == infoMessage.AboutId))
+                            {
+                                Data.Add(new StationData(infoMessage.AboutId, infoMessage.Hoc, infoMessage.FirstHocTime, LocalTime));
+                            }
+                        }
+                    }
+
+                    if (Data.Count == SlotsInCycle - 1)//-1 т.к. мы знаем информацию про себя
+                    {
+                        IsGotSpecialInfo = true;
+                    }
+
+                    NotifyPropertyChanged("Data");
 
                 }
             }
         }
 
-        public Message Transmit(bool isNoise, int toId)
+        public IMessage Transmit(bool isNoise, int toId)
         {
-            var message = new Message(isNoise, IsGotSpecialInfo, Id, toId, LocalTime);
-            return message;
+            if (Data.Count == 0)
+            {
+                var message = new InfoExpandMessage(isNoise, Id, toId, LocalTime, LocalTime, Id, 1);
+
+                return message;
+            }
+            else
+            {
+                if (lastDataTransmited == Data.Count - 1)
+                {
+                    lastDataTransmited = 0;
+                }
+                else
+                {
+                    lastDataTransmited++;
+                }
+                var message = new InfoExpandMessage(isNoise, Id, toId, LocalTime, Data[lastDataTransmited].FirstHocTime, Data[lastDataTransmited].Id, Data[lastDataTransmited].Hoc + 1);
+
+                return message;
+            }
+
         }
 
         #endregion

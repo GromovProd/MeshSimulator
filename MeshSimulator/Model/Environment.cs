@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Log.Support;
 using MeshSimulator.Model.Station;
+using MeshSimulator.Model.PositionHelp;
 
 namespace MeshSimulator.Model
 {
@@ -157,33 +158,17 @@ namespace MeshSimulator.Model
 
         public void LoadData()
         {
-            var columns = (int)Math.Sqrt(Variables.CountOfStations);
-            var k = 0;
-            var n = 0;
+            var posHelper = new InLinePositionHelper();
+            var coords = posHelper.GetCoordinates(Variables.CountOfStations, Variables.ConnectionRadius, Variables.Height, Variables.Width);
 
-            while (k < Variables.CountOfStations)
+            for (int i = 0; i < Variables.CountOfStations; i++)
             {
-                for (int i = 0; i < columns; i++)
-                {
-                    if (k < Variables.CountOfStations)
-                    {
-                        k++;
-                        //var station = new Station(k, 50, new Coordinate() { X = 25 + 25 * i, Y = 25 + 25 * n }, cyclesInSuperCycle, CountOfStations, new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 0),
-                        //            new TimeSpan(0, 0, 0, 0, 100), new TimeSpan(0, 0, 0, 0, 80), 0, 0, 0.0, Rand.Next());
+                var station = new SimpleStation(i, Variables.ConnectionRadius, coords[i], Variables.CyclesInSuperCycle, Variables.CountOfStations, new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, Variables.PacketTransmitTime), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), Variables.MaxSpeed, Variables.Height, Variables.Width);
 
-                        var station = new SimpleStation(k, 50, new Coordinate() { X = Rand.Next(Variables.Width - 20) + 10, Y = Rand.Next(Variables.Height - 20) + 10 }, Variables.CyclesInSuperCycle, Variables.CountOfStations, new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, Variables.PacketTransmitTime), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), Variables.MaxSpeed, Variables.Height, Variables.Width);
-
-                        Stations.Add(station);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                n++;
+                Stations.Add(station);
             }
 
-            SetStationWithSpecialInfo();
+            //SetStationWithSpecialInfo();
 
         }
 
