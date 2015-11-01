@@ -42,7 +42,7 @@ namespace MeshSimulator.View
             DataContext = Enviroment;
 
             App.Enviroment.OnFinish += Enviroment_OnFinish;
-            App.Enviroment.OnInfoExpanded += Enviroment_OnInfoExpanded;
+            //App.Enviroment.OnInfoExpanded += Enviroment_OnInfoExpanded;
 
             t = new Thread(Enviroment.Emulate);
 

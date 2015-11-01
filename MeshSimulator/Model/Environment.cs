@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using Log.Support;
 using MeshSimulator.Model.Station;
 using MeshSimulator.Model.PositionHelp;
+using MeshSimulator.Data;
 
 namespace MeshSimulator.Model
 {
@@ -153,6 +154,11 @@ namespace MeshSimulator.Model
 
             ReportMillisecondsInterval = (int)(Variables.EndTime.TotalMilliseconds / Variables.CountOfReports);
 
+            if (v.DoReports)
+            {
+                CSVWriter.GenerateReport(v);
+            }
+
             LoadData();
         }
 
@@ -215,27 +221,7 @@ namespace MeshSimulator.Model
 
                     GlobalTime = GlobalTime.Add(timeToSubstract);
 
-                    if (GlobalTime >= Variables.EndTime)
-                    {
-                        IsEmulate = false;
-                        CallOnFinish();
-                    }
-
-                    //Собираем аналитику каждые ReportMinutesInterval минут
-                    if (GlobalTime.TotalMilliseconds > ReportsDone * ReportMillisecondsInterval)
-                    {
-                        //Каждый час
-                        ReportsDone++;
-                    }
-
-                    if (!IsInfoExpanded)
-                    {
-                        if (Stations.Where(i => i.IsGotSpecialInfo).Count() == Stations.Count)
-                        {
-                            IsInfoExpanded = true;
-                            CallOnInfoExpanded();
-                        }
-                    }
+                    CheckEvents();
 
                     if (IsRealTime)
                     {
@@ -246,12 +232,42 @@ namespace MeshSimulator.Model
                     {
                         Thread.Sleep(1);
                     }
-
-
                 }
 
                 //вызываем событие
                 CallOnTurn();
+            }
+        }
+
+        private void CheckEvents()
+        {
+            if (Variables.DoReports)
+            {
+                //Собираем аналитику каждые ReportMinutesInterval минут
+                if (GlobalTime.TotalMilliseconds > ReportsDone * ReportMillisecondsInterval)
+                {
+                    //Каждый час
+                    ReportsDone++;
+
+                    var report = new Report.Report() { Id = ReportsDone, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency };
+                    CSVWriter.WriteReport(report);
+
+                }
+            }
+
+            if (!IsInfoExpanded)
+            {
+                if (Stations.Where(i => i.IsGotSpecialInfo).Count() == Stations.Count)
+                {
+                    IsInfoExpanded = true;
+                    CallOnInfoExpanded();
+                }
+            }
+
+            if (GlobalTime >= Variables.EndTime)
+            {
+                IsEmulate = false;
+                CallOnFinish();
             }
         }
 

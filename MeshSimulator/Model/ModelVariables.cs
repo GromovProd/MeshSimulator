@@ -24,5 +24,7 @@ namespace MeshSimulator.Model
         public int SlotTimeMilliSeconds = 100;
         public int PacketTransmitTime = 80;
 
+        public bool DoReports = false;
+        public bool DoInfoExpandReports = false;
     }
 }

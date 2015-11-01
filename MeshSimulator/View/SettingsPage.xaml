@@ -13,7 +13,11 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <GroupBox Grid.Column="0" Header="Environment">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Column="0" Grid.Row="0" Header="Environment">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -39,11 +43,9 @@
                     <TextBox Grid.Row="3" Grid.Column="2" x:Name="endTimeDays" Text="14" VerticalAlignment="Center" Width="20" HorizontalAlignment="Left"/>
                     <TextBlock Grid.Row="3" Grid.Column="2" Text="d" VerticalAlignment="Center" Width="20" HorizontalAlignment="Left" Margin="24,0,0,0"/>
                     <TextBox Grid.Row="3" Grid.Column="2" x:Name="endTime" Text="00:00:00" VerticalAlignment="Center" Margin="36,0,0,0"/>
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Count of reports" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="4" Grid.Column="2" x:Name="countOfReports" Text="10000" VerticalAlignment="Center"/>
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Column="1" Header="Station">
+            <GroupBox Grid.Column="1" Grid.Row="0" Header="Station">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -65,7 +67,7 @@
                     <TextBox Grid.Row="1" Grid.Column="2" x:Name="maxSpeed" Text="10" VerticalAlignment="Center"/>
                 </Grid>
             </GroupBox>
-            <GroupBox Grid.Column="2" Header="Protocol">
+            <GroupBox Grid.Column="2" Grid.Row="0" Header="Protocol">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -87,6 +89,30 @@
                     <TextBox Grid.Row="1" Grid.Column="2" x:Name="slotTime" Text="100" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Packet Tx time, msec" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="2" Grid.Column="2" x:Name="packetTxTime" Text="80" VerticalAlignment="Center"/>
+                </Grid>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Grid.Row="1" Header="Reports">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Periodical reports" VerticalAlignment="Center"/>
+                    <CheckBox Grid.Row="0" Grid.Column="2" x:Name="cbPeriodical" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Count of periodical reports" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" x:Name="countOfReports" Text="10000" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Info expanshion reports" VerticalAlignment="Center"/>
+                    <CheckBox Grid.Row="2" Grid.Column="2" x:Name="cbInfoExpanshion" VerticalAlignment="Center"/>
                 </Grid>
             </GroupBox>
     </Grid>

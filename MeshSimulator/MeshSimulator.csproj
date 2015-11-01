@@ -53,6 +53,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Data\CSVWriter.cs" />
     <Compile Include="Model\IMessage.cs" />
     <Compile Include="Model\IProtocol.cs" />
     <Compile Include="Model\IStation.cs" />
@@ -62,7 +63,8 @@
     <Compile Include="Model\PositionHelp\InLinePositionHelper.cs" />
     <Compile Include="Model\PositionHelp\IPositionHelper.cs" />
     <Compile Include="Model\PositionHelp\RandomPositionHelper.cs" />
-    <Compile Include="Model\Report.cs" />
+    <Compile Include="Model\Report\InfoExpandReport.cs" />
+    <Compile Include="Model\Report\Report.cs" />
     <Compile Include="Model\StationData.cs" />
     <Compile Include="Model\SyncMessage.cs" />
     <Compile Include="Support\ILogTarget.cs" />
@@ -145,9 +147,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

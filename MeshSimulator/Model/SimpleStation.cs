@@ -714,6 +714,13 @@ namespace MeshSimulator.Model.Station
                     {
                         Data.Add(new StationData(message.FromId, 1, LocalTime, LocalTime));
                     }
+                    else
+                    {
+                        var data = Data.Single(i => i.Id == message.FromId);
+                        {
+                            data.Update(LocalTime, 1);
+                        }
+                    }
 
                     //Получили информацию о другом
                     if (message.Type == MessageType.InfoExpand)
@@ -725,6 +732,13 @@ namespace MeshSimulator.Model.Station
                             if (!Data.Exists(i => i.Id == infoMessage.AboutId))
                             {
                                 Data.Add(new StationData(infoMessage.AboutId, infoMessage.Hoc, infoMessage.FirstHocTime, LocalTime));
+                            }
+                            else
+                            {
+                                var data = Data.Single(i => i.Id == message.FromId);
+                                {
+                                    data.Update(LocalTime, infoMessage.Hoc);
+                                }
                             }
                         }
                     }
@@ -758,7 +772,7 @@ namespace MeshSimulator.Model.Station
                 {
                     lastDataTransmited++;
                 }
-                var message = new InfoExpandMessage(isNoise, Id, toId, LocalTime, Data[lastDataTransmited].FirstHocTime, Data[lastDataTransmited].Id, Data[lastDataTransmited].Hoc + 1);
+                var message = new InfoExpandMessage(isNoise, Id, toId, LocalTime, Data[lastDataTransmited].FirstHocTime, Data[lastDataTransmited].Id, Data[lastDataTransmited].FirstHoc + 1);
 
                 return message;
             }

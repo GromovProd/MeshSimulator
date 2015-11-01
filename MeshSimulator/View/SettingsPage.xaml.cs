@@ -36,7 +36,6 @@ namespace MeshSimulator.View
 
             variables.EndTime = TimeSpan.Parse(endTime.Text);
             variables.EndTime = variables.EndTime.Add(new TimeSpan(int.Parse(endTimeDays.Text), 0, 0, 0));
-            variables.CountOfReports = int.Parse(countOfReports.Text);
 
             variables.ConnectionRadius = int.Parse(connectionRadius.Text);
             variables.MaxSpeed = int.Parse(maxSpeed.Text);
@@ -44,6 +43,10 @@ namespace MeshSimulator.View
             variables.CyclesInSuperCycle = int.Parse(cyclesInSuperCycle.Text);
             variables.SlotTimeMilliSeconds = int.Parse(slotTime.Text);
             variables.PacketTransmitTime = int.Parse(packetTxTime.Text);
+
+            variables.CountOfReports = int.Parse(countOfReports.Text);
+            variables.DoReports = (bool)cbPeriodical.IsChecked;
+            variables.DoInfoExpandReports = (bool)cbInfoExpanshion.IsChecked;
 
             // Создать экземпляр модели
             App.CreateEnviroment(variables);
