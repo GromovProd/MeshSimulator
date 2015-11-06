@@ -726,7 +726,7 @@ namespace MeshSimulator.Model.Station
                     if (message.Type == MessageType.InfoExpand)
                     {
                         var infoMessage = (InfoExpandMessage)message;
-                        //Приняли информацию о другом
+                        //Приняли информацию не о нас
                         if (infoMessage.AboutId != Id)
                         {
                             if (!Data.Exists(i => i.Id == infoMessage.AboutId))
@@ -736,7 +736,7 @@ namespace MeshSimulator.Model.Station
                             else
                             {
                                 //ПРОВЕРИТЬ
-                                var data = Data.Single(i => i.Id == message.FromId);
+                                var data = Data.Single(i => i.Id == infoMessage.AboutId);
                                 {
                                     data.Update(LocalTime, infoMessage.Hoc);
                                 }
