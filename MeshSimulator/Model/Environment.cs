@@ -130,6 +130,14 @@ namespace MeshSimulator.Model
             set { reportMillisecondsInterval = value; NotifyPropertyChanged(); }
         }
 
+        private int countOfInfoExpandedStations = 0;
+
+        public int CountOfInfoExpandedStations
+        {
+            get { return countOfInfoExpandedStations; }
+            set { countOfInfoExpandedStations = value; }
+        }
+
         private bool isInfoExpanded = false;
 
         public bool IsInfoExpanded
@@ -156,7 +164,12 @@ namespace MeshSimulator.Model
 
             if (v.DoReports)
             {
-                CSVWriter.GenerateReport(v);
+                ReportWriter.GenerateReport(v);
+            }
+
+            if (v.DoInfoExpandReports)
+            {
+                ReportWriter.GenerateInfoExpandReport(v);
             }
 
             LoadData();
@@ -246,20 +259,23 @@ namespace MeshSimulator.Model
                 //Собираем аналитику каждые ReportMinutesInterval минут
                 if (GlobalTime.TotalMilliseconds > ReportsDone * ReportMillisecondsInterval)
                 {
-                    //Каждый час
                     ReportsDone++;
 
                     var report = new Report.Report() { Id = ReportsDone, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency };
-                    CSVWriter.WriteReport(report);
+                    ReportWriter.WriteReport(report);
 
                 }
             }
 
-            if (!IsInfoExpanded)
+            if (Variables.DoInfoExpandReports)
             {
-                if (Stations.Where(i => i.IsGotSpecialInfo).Count() == Stations.Count)
+                if (Stations.Where(i => i.IsGotSpecialInfo).Count() != CountOfInfoExpandedStations)
                 {
-                    IsInfoExpanded = true;
+                    CountOfInfoExpandedStations++;
+
+                    var report = new Report.InfoExpandReport() { Id = CountOfInfoExpandedStations, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency };
+                    ReportWriter.WriteReport(report);
+
                     CallOnInfoExpanded();
                 }
             }
@@ -267,6 +283,17 @@ namespace MeshSimulator.Model
             if (GlobalTime >= Variables.EndTime)
             {
                 IsEmulate = false;
+
+                var dict = new Dictionary<int, List<StationData>>();
+
+                for (int i = 0; i < Stations.Count; i++)
+                {
+                    dict.Add(Stations[i].Id, Stations[i].Data);
+                }
+
+                var report = new Report.FinishReport() { Id = ReportsDone, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency, StationsData = dict };
+                ReportWriter.GenerateFinishReport(Variables, report);
+
                 CallOnFinish();
             }
         }

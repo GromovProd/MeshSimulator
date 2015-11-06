@@ -55,7 +55,10 @@ namespace MeshSimulator.View
             if (Enviroment.IsEmulate)
             {
                 Enviroment.IsEmulate = false;
-                t.Suspend();
+                if (t.ThreadState == ThreadState.Running)
+                {
+                    t.Suspend();
+                }
             }
             else
             {
