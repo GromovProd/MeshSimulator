@@ -29,7 +29,7 @@ namespace MeshSimulator.View
             get { return App.Enviroment; }
         }
 
-        Thread t;
+        public Thread t;
 
         public ViewPage()
         {
@@ -45,6 +45,9 @@ namespace MeshSimulator.View
             //App.Enviroment.OnInfoExpanded += Enviroment_OnInfoExpanded;
 
             t = new Thread(Enviroment.Emulate);
+            t.Priority = ThreadPriority.Highest;
+            t.IsBackground = true;
+            t.Name = "Prossessing";
 
             ShowVisualizationWindow();
         }
@@ -54,20 +57,23 @@ namespace MeshSimulator.View
         {
             if (Enviroment.IsEmulate)
             {
-                Enviroment.IsEmulate = false;
-                if (t.ThreadState == ThreadState.Running)
+                if (t.ThreadState != ThreadState.Stopped)
                 {
                     t.Suspend();
+                    Enviroment.IsEmulate = false;
                 }
             }
             else
             {
-                Enviroment.IsEmulate = true;
-                if (t.ThreadState == ThreadState.Unstarted)
+                if (t.ThreadState == (ThreadState.Background | ThreadState.Unstarted))
+                {
                     t.Start();
+                    Enviroment.IsEmulate = true;
+                }
                 else
                 {
                     t.Resume();
+                    Enviroment.IsEmulate = true;
                 }
 
             }

@@ -702,7 +702,7 @@ namespace MeshSimulator.Model.Station
             {
                 if (!message.IsNoise)
                 {
-                    Logger.Instance.WriteInfo("Message resieved " + Id);
+                    Logger.Instance.WriteInfo("Message recieved " + Id);
 
                     if (message.FromId < Id)
                     {
@@ -735,6 +735,7 @@ namespace MeshSimulator.Model.Station
                             }
                             else
                             {
+                                //ПРОВЕРИТЬ
                                 var data = Data.Single(i => i.Id == message.FromId);
                                 {
                                     data.Update(LocalTime, infoMessage.Hoc);

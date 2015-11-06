@@ -87,7 +87,7 @@ namespace MeshSimulator.Model
             get { return DateTime.Now - StartTime; }
         }
 
-        private bool isEmulate = false;
+        private volatile bool isEmulate = false;
 
         public bool IsEmulate
         {
@@ -177,7 +177,7 @@ namespace MeshSimulator.Model
 
         public void LoadData()
         {
-            var posHelper = new InLinePositionHelper();
+            var posHelper = Variables.PositionHelper;
             var coords = posHelper.GetCoordinates(Variables.CountOfStations, Variables.ConnectionRadius, Variables.Height, Variables.Width);
 
             for (int i = 0; i < Variables.CountOfStations; i++)

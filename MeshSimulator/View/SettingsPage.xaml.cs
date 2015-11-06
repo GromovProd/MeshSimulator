@@ -1,4 +1,5 @@
 ﻿using MeshSimulator.Model;
+using MeshSimulator.Model.PositionHelp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,23 @@ namespace MeshSimulator.View
             variables.CountOfReports = int.Parse(countOfReports.Text);
             variables.DoReports = (bool)cbPeriodical.IsChecked;
             variables.DoInfoExpandReports = (bool)cbInfoExpanshion.IsChecked;
+
+            if((bool)xRandom.IsChecked)
+            {
+                variables.PositionHelper = new RandomPositionHelper();
+            }
+            if ((bool)xInLine.IsChecked)
+            {
+                variables.PositionHelper = new InLinePositionHelper();
+            }
+            if ((bool)xInCircle.IsChecked)
+            {
+                variables.PositionHelper = new RoundPositionHelper();
+            }
+            if ((bool)xTwoGroups.IsChecked)
+            {
+                variables.PositionHelper = new TwoGroupsPositionHelper();
+            }
 
             // Создать экземпляр модели
             App.CreateEnviroment(variables);

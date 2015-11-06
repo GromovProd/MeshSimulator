@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MeshSimulator.Model.PositionHelp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,5 +27,7 @@ namespace MeshSimulator.Model
 
         public bool DoReports = false;
         public bool DoInfoExpandReports = false;
+
+        public IPositionHelper PositionHelper = new RandomPositionHelper();
     }
 }
