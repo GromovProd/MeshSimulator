@@ -162,6 +162,8 @@ namespace MeshSimulator.Model
 
             ReportMillisecondsInterval = (int)(Variables.EndTime.TotalMilliseconds / Variables.CountOfReports);
 
+            ReportWriter.Init();
+            
             if (v.DoReports)
             {
                 ReportWriter.GenerateReport(v);

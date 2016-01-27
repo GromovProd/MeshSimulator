@@ -16,9 +16,17 @@ namespace MeshSimulator.Data
         private static string fileReportName = "";
         private static string fileInfoExpandReportName = "";
 
+        public static void Init()
+        {
+            var folderName = "Reports_" + GenerateReportNameByTime()+"/";
+            path += folderName;
+
+            System.IO.Directory.CreateDirectory(folderName);
+        }
+
         public static void GenerateReport(ModelVariables variables)
         {
-            fileReportName = "Report" + GenerateReportNameByTime() + ".csv";
+            fileReportName = "Report.csv";
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("Time: {0}\nCount of stations: {1}\nWidth: {2}\nHeight: {3}\nEmulation time: {4}\n",
                 DateTime.Now, variables.CountOfReports, variables.Width, variables.Height, variables.EndTime);
@@ -33,7 +41,7 @@ namespace MeshSimulator.Data
 
         public static void GenerateInfoExpandReport(ModelVariables variables)
         {
-            fileInfoExpandReportName = "InfoExpandReport" + GenerateReportNameByTime() + ".csv";
+            fileInfoExpandReportName = "InfoExpandReport.csv";
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("Time: {0}\nCount of stations: {1}\nWidth: {2}\nHeight: {3}\nEmulation time: {4}\n",
                 DateTime.Now, variables.CountOfReports, variables.Width, variables.Height, variables.EndTime);
@@ -48,7 +56,7 @@ namespace MeshSimulator.Data
 
         public static void GenerateFinishReport(ModelVariables variables, FinishReport report)
         {
-            fileReportName = "FinishReport" + GenerateReportNameByTime() + ".csv";
+            fileReportName = "FinishReport.csv";
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("Time: {0}\nCount of stations: {1}\nWidth: {2}\nHeight: {3}\nEmulation time: {4}\n",
                 DateTime.Now, variables.CountOfReports, variables.Width, variables.Height, variables.EndTime);
@@ -72,7 +80,7 @@ namespace MeshSimulator.Data
             {
                 var data = report.StationsData[i].OrderBy(z => z.Id).ToList();
 
-                sb.Append(i+";");
+                sb.Append(i + ";");
 
                 for (int j = 0; j < report.StationsData.Keys.Count; j++)
                 {
@@ -85,7 +93,7 @@ namespace MeshSimulator.Data
                     {
                         sb.Append(";");
                     }
-                   
+
                 }
                 sb.Append("\n");
             }
@@ -109,7 +117,7 @@ namespace MeshSimulator.Data
             for (int i = 0; i < report.StationsData.Keys.Count; i++)
             {
                 var data = report.StationsData[i].OrderBy(z => z.Id).ToList();
-                
+
                 sb.Append(i + ";");
 
                 for (int j = 0; j < report.StationsData.Keys.Count; j++)

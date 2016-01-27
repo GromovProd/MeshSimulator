@@ -92,11 +92,13 @@
                         <RowDefinition Height="24"/>
                         <RowDefinition Height="24"/>
                         <RowDefinition Height="24"/>
+                        <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <RadioButton Grid.Row="0" x:Name="xRandom" Content="Random" IsChecked="True"/>
-                    <RadioButton Grid.Row="1" x:Name="xInLine" Content="In line"/>
-                    <RadioButton Grid.Row="2" x:Name="xInCircle" Content="In circle"/>
-                    <RadioButton Grid.Row="3" x:Name="xTwoGroups" Content="Two groups"/>
+                    <RadioButton Grid.Row="1" x:Name="xInPoint" Content="In point"/>
+                    <RadioButton Grid.Row="2" x:Name="xInLine" Content="In line"/>
+                    <RadioButton Grid.Row="3" x:Name="xInCircle" Content="In circle"/>
+                    <RadioButton Grid.Row="4" x:Name="xTwoGroups" Content="Two groups"/>
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Column="1" Grid.Row="1" Header="Reports">

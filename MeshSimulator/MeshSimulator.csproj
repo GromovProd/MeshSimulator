@@ -58,6 +58,7 @@
     <Compile Include="Model\IProtocol.cs" />
     <Compile Include="Model\IStation.cs" />
     <Compile Include="Model\ModelVariables.cs" />
+    <Compile Include="Model\PositionHelp\InPointPositionHelper.cs" />
     <Compile Include="Model\PositionHelp\TwoGroupsPositionHelper.cs" />
     <Compile Include="Model\PositionHelp\RoundPositionHelper.cs" />
     <Compile Include="Model\PositionHelp\InLinePositionHelper.cs" />
