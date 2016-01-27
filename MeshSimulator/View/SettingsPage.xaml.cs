@@ -53,6 +53,10 @@ namespace MeshSimulator.View
             {
                 variables.PositionHelper = new RandomPositionHelper();
             }
+            if ((bool)xInPoint.IsChecked)
+            {
+                variables.PositionHelper = new InPointPositionHelper();
+            }
             if ((bool)xInLine.IsChecked)
             {
                 variables.PositionHelper = new InLinePositionHelper();

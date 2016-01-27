@@ -35,6 +35,7 @@ namespace MeshSimulator.View
         {
             InitializeComponent();
             this.Loaded += ViewPage_Loaded;
+
         }
 
         void ViewPage_Loaded(object sender, RoutedEventArgs e)
@@ -51,6 +52,7 @@ namespace MeshSimulator.View
 
             ShowVisualizationWindow();
         }
+
 
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -137,7 +139,5 @@ namespace MeshSimulator.View
             var station = (IStation)dg.SelectedItem;
             station.IsSelected = true;
         }
-
-
     }
 }

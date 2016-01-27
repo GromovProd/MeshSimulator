@@ -75,6 +75,12 @@ namespace MeshSimulator
                 visualizationWindow.Hide();
         }
 
+        public void DisposeVisualizationWindow()
+        {
+            visualizationWindow.Close();
+            visualizationWindow = null;
+        }
+
         private void MainItem_Click(object sender, RoutedEventArgs e)
         {
             frame.Navigate(viewPage);
