@@ -29,7 +29,7 @@ namespace MeshSimulator.Data
             fileReportName = "Report.csv";
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("Time: {0}\nCount of stations: {1}\nWidth: {2}\nHeight: {3}\nEmulation time: {4}\n",
-                DateTime.Now, variables.CountOfReports, variables.Width, variables.Height, variables.EndTime);
+                DateTime.Now, variables.CountOfStations, variables.Width, variables.Height, variables.EndTime);
             sb.AppendFormat("Connection radius: {0}\nCycles in supercycle: {1}\nSlot time: {2}\nPacket transmition time: {3}\n", variables.ConnectionRadius, variables.CyclesInSuperCycle, variables.SlotTimeMilliSeconds, variables.PacketTransmitTime);
 
             sb.Append("Id; Emulation time; Global time; Messages sended; Messages recieved; Efficiency\n");
@@ -44,7 +44,7 @@ namespace MeshSimulator.Data
             fileInfoExpandReportName = "InfoExpandReport.csv";
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("Time: {0}\nCount of stations: {1}\nWidth: {2}\nHeight: {3}\nEmulation time: {4}\n",
-                DateTime.Now, variables.CountOfReports, variables.Width, variables.Height, variables.EndTime);
+                DateTime.Now, variables.CountOfStations, variables.Width, variables.Height, variables.EndTime);
             sb.AppendFormat("Connection radius: {0}\nCycles in supercycle: {1}\nSlot time: {2}\nPacket transmition time: {3}\n", variables.ConnectionRadius, variables.CyclesInSuperCycle, variables.SlotTimeMilliSeconds, variables.PacketTransmitTime);
 
             sb.Append("Id; Emulation time; Global time; Messages sended; Messages recieved; Efficiency; StationId\n");
@@ -59,7 +59,7 @@ namespace MeshSimulator.Data
             fileReportName = "FinishReport.csv";
             StringBuilder sb = new StringBuilder();
             sb.AppendFormat("Time: {0}\nCount of stations: {1}\nWidth: {2}\nHeight: {3}\nEmulation time: {4}\n",
-                DateTime.Now, variables.CountOfReports, variables.Width, variables.Height, variables.EndTime);
+                DateTime.Now, variables.CountOfStations, variables.Width, variables.Height, variables.EndTime);
             sb.AppendFormat("Connection radius: {0}\nCycles in supercycle: {1}\nSlot time: {2}\nPacket transmition time: {3}\n", variables.ConnectionRadius, variables.CyclesInSuperCycle, variables.SlotTimeMilliSeconds, variables.PacketTransmitTime);
 
             for (int i = -1; i < report.StationsData.Keys.Count; i++)

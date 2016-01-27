@@ -42,7 +42,7 @@ namespace MeshSimulator
             wbCanvas.Height = Enviroment.Variables.Height;
             wbCanvas.Width = Enviroment.Variables.Width;
             //доделать
-            SubscribeOnTurnEvent(true);
+            SubscribeOnTurnEvent(false);
         }
 
         public void SubscribeOnTurnEvent(bool IsUIUpdate)

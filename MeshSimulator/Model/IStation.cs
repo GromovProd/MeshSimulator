@@ -28,6 +28,9 @@ namespace MeshSimulator.Model
         int FWidth { get; set; }
         bool IsSelected { get; set; }
 
+        bool IsUpdate { get; set; }
+
         List<StationData> Data { get; set; }
+        void SetBinding(bool isUpdate);
     }
 }

@@ -47,6 +47,11 @@ namespace MeshSimulator
             viewPage.IsUICheckBox.Checked += IsUICheckBox_Checked;
             viewPage.IsUICheckBox.Unchecked += IsUICheckBox_Checked;
 
+            if (visualizationWindow == null)
+            {
+                visualizationWindow = new VisualizationWindow();
+                visualizationWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
+            }
 
             frame.Navigate(settingsPage);
         }
@@ -59,12 +64,6 @@ namespace MeshSimulator
 
         public void ShowVisualizationWindow()
         {
-            if (visualizationWindow == null)
-            {
-                visualizationWindow = new VisualizationWindow();
-                visualizationWindow.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
-            }
-
             if (!visualizationWindow.IsVisible)
             {
                 visualizationWindow.Show();

@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using MeshSimulator.Model;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Log.Support;
 using MeshSimulator.Model.Station;
-using MeshSimulator.Model.PositionHelp;
 using MeshSimulator.Data;
 
 namespace MeshSimulator.Model
@@ -106,6 +102,21 @@ namespace MeshSimulator.Model
             }
         }
 
+        private bool isUIon = false;
+
+        public bool IsUIon
+        {
+            get { return isUIon; }
+            set
+            {
+                isUIon = value;
+                foreach (IStation s in Stations)
+                {
+                    s.SetBinding(value);
+                }
+            }
+        }
+
         private Random rand;
 
         public Random Rand
@@ -163,7 +174,7 @@ namespace MeshSimulator.Model
             ReportMillisecondsInterval = (int)(Variables.EndTime.TotalMilliseconds / Variables.CountOfReports);
 
             ReportWriter.Init();
-            
+
             if (v.DoReports)
             {
                 ReportWriter.GenerateReport(v);
@@ -188,8 +199,6 @@ namespace MeshSimulator.Model
 
                 Stations.Add(station);
             }
-
-            //SetStationWithSpecialInfo();
 
         }
 
@@ -238,14 +247,17 @@ namespace MeshSimulator.Model
 
                     CheckEvents();
 
-                    if (IsRealTime)
+                    if (IsUIon)
                     {
-                        //Реалтайм
-                        Thread.Sleep(timeToSubstract);
-                    }
-                    else
-                    {
-                        Thread.Sleep(1);
+                        if (IsRealTime)
+                        {
+                            //Реалтайм
+                            Thread.Sleep(timeToSubstract);
+                        }
+                        else
+                        {
+                            Thread.Sleep(1);
+                        }
                     }
                 }
 
@@ -350,10 +362,16 @@ namespace MeshSimulator.Model
 
             if (station.CurrentState == StationAction.TxDown)
             {
+#if DEBUG
                 Logger.Instance.WriteInfo(station.Id + " trying to transmit");
+#endif
+
                 foreach (SimpleStation rx in station.StationsToTransmit)
                 {
+#if DEBUG
                     Logger.Instance.WriteInfo(station.Id + " transmit to:" + rx.Id);
+#endif
+
                     TransmitredTotal++;
                     var channelState = GetChannelState(rx);
                     bool isNoise = !CanDeliver(station.ConnectionRadius, GetRange(station, rx));
@@ -459,9 +477,12 @@ namespace MeshSimulator.Model
         // Used to notify Silverlight that a property has changed.
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (PropertyChanged != null)
+            if (IsUIon)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
         }
         #endregion

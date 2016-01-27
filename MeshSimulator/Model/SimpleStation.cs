@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MeshSimulator.Model.Station
 {
@@ -319,6 +317,14 @@ namespace MeshSimulator.Model.Station
             set { data = value; NotifyPropertyChanged(); }
         }
 
+        private bool isUpdate = false;
+
+        public bool IsUpdate
+        {
+            get { return isUpdate; }
+            set { isUpdate = value; }
+        }
+
         private int lastDataTransmited = -1;
 
         private Random rand = new Random();
@@ -361,7 +367,9 @@ namespace MeshSimulator.Model.Station
             Speed = rand.Next(MaxSpeed);
             RxCycle = rand.Next(0, CyclesInSuperCycle);
 
+#if DEBUG
             Logger.Instance.WriteInfo(Id + " initialized");
+#endif
         }
 
 
@@ -373,15 +381,12 @@ namespace MeshSimulator.Model.Station
 
             NextState = GetNextState();
 
-            //LocalTime.TotalMilliseconds.ToString();
-            //AwakeTime.TotalMilliseconds.ToString();
-            //CurrentState.ToString();
-
+#if DEBUG
             Logger.Instance.WriteInfo(Id + " current state: " + CurrentState.ToString());
             Logger.Instance.WriteInfo(Id + " next state: " + NextState.ToString());
             Logger.Instance.WriteInfo(Id + " local time: " + LocalTime.ToString());
             Logger.Instance.WriteInfo(Id + " awake time: " + AwakeTime.ToString());
-
+#endif
         }
 
         int bX = 1;
@@ -501,14 +506,18 @@ namespace MeshSimulator.Model.Station
                         LastRxUpTime = LocalTime;
                         IsReceive = true;
                         IsTransmit = false;
+                        #if DEBUG
                         Logger.Instance.WriteInfo(Id + " RxUp");
+                        #endif
                         break;
                     }
                 case StationAction.RxDown:
                     {
                         IsReceive = false;
                         IsTransmit = false;
+                        #if DEBUG
                         Logger.Instance.WriteInfo(Id + " RxDown");
+                        #endif
                         break;
                     }
                 case StationAction.TxUp:
@@ -516,14 +525,18 @@ namespace MeshSimulator.Model.Station
                         LastTxUpTime = LocalTime;
                         IsTransmit = true;
                         IsReceive = false;
+                        #if DEBUG
                         Logger.Instance.WriteInfo(Id + " TxUp");
+                        #endif
                         break;
                     }
                 case StationAction.TxDown:
                     {
                         IsTransmit = false;
                         IsReceive = false;
+                        #if DEBUG
                         Logger.Instance.WriteInfo(Id + " TxDown");
+                        #endif
                         break;
                     }
                 case StationAction.RCU:
@@ -534,8 +547,9 @@ namespace MeshSimulator.Model.Station
                         rand = new Random(Id);
 
                         RxCycle = rand.Next(0, CyclesInSuperCycle);
-
+                        #if DEBUG
                         Logger.Instance.WriteInfo(Id + " RxCycle: " + RxCycle.ToString());
+                        #endif
                         break;
                     }
             }
@@ -702,7 +716,9 @@ namespace MeshSimulator.Model.Station
             {
                 if (!message.IsNoise)
                 {
+#if DEBUG
                     Logger.Instance.WriteInfo("Message recieved " + Id);
+#endif
 
                     if (message.FromId < Id)
                     {
@@ -780,6 +796,11 @@ namespace MeshSimulator.Model.Station
 
         }
 
+        public void SetBinding(bool isUpdate)
+        {
+            IsUpdate = isUpdate;
+        }
+
         #endregion
 
         #region INotifyPropertyChanged Members
@@ -789,9 +810,12 @@ namespace MeshSimulator.Model.Station
         // Used to notify Silverlight that a property has changed.
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = null)
         {
-            if (PropertyChanged != null)
+            if (IsUpdate)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
         }
         #endregion

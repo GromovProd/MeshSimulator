@@ -1,21 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using MeshSimulator.Model;
 using Environment = MeshSimulator.Model.Environment;
 using System.Threading;
-using System.Windows.Threading;
 
 namespace MeshSimulator.View
 {
@@ -49,8 +38,6 @@ namespace MeshSimulator.View
             t.Priority = ThreadPriority.Highest;
             t.IsBackground = true;
             t.Name = "Prossessing";
-
-            ShowVisualizationWindow();
         }
 
 
@@ -99,10 +86,12 @@ namespace MeshSimulator.View
             var chb = (CheckBox)sender;
             if (chb.IsChecked == true)
             {
+                Enviroment.IsUIon = true;
                 ShowVisualizationWindow();
             }
             else
             {
+                Enviroment.IsUIon = false;
                 ShowVisualizationWindow();
             }
         }
@@ -139,5 +128,7 @@ namespace MeshSimulator.View
             var station = (IStation)dg.SelectedItem;
             station.IsSelected = true;
         }
+
+
     }
 }
