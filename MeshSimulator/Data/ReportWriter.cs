@@ -32,7 +32,7 @@ namespace MeshSimulator.Data
                 DateTime.Now, variables.CountOfStations, variables.Width, variables.Height, variables.EndTime);
             sb.AppendFormat("Connection radius: {0}\nCycles in supercycle: {1}\nSlot time: {2}\nPacket transmition time: {3}\n", variables.ConnectionRadius, variables.CyclesInSuperCycle, variables.SlotTimeMilliSeconds, variables.PacketTransmitTime);
 
-            sb.Append("Id; Emulation time; Global time; Messages sended; Messages recieved; Efficiency\n");
+            sb.Append("Id; Emulation time, minutes; Global time, hours; Messages sended; Messages recieved; Efficiency\n");
 
             var text = sb.ToString();
 
@@ -47,7 +47,7 @@ namespace MeshSimulator.Data
                 DateTime.Now, variables.CountOfStations, variables.Width, variables.Height, variables.EndTime);
             sb.AppendFormat("Connection radius: {0}\nCycles in supercycle: {1}\nSlot time: {2}\nPacket transmition time: {3}\n", variables.ConnectionRadius, variables.CyclesInSuperCycle, variables.SlotTimeMilliSeconds, variables.PacketTransmitTime);
 
-            sb.Append("Id; Emulation time; Global time; Messages sended; Messages recieved; Efficiency; StationId\n");
+            sb.Append("Id; Emulation time, minutes; Global time, hours; Messages sended; Messages recieved; Efficiency; StationId\n");
 
             var text = sb.ToString();
 
@@ -186,7 +186,7 @@ namespace MeshSimulator.Data
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendFormat("{0};{1};{2};{3};{4};{5}\n", report.Id, report.EmulationTime, report.GlobalTime, report.MessagesRecieved, report.MessagesSended, report.Efficiency);
+            sb.AppendFormat("{0};{1};{2};{3};{4};{5}\n", report.Id, report.EmulationTime.TotalMinutes, report.GlobalTime.TotalHours, report.MessagesRecieved, report.MessagesSended, report.Efficiency);
 
             var text = sb.ToString();
 
@@ -197,7 +197,7 @@ namespace MeshSimulator.Data
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.AppendFormat("{0};{1};{2};{3};{4};{5}\n", report.Id, report.EmulationTime, report.GlobalTime, report.MessagesRecieved, report.MessagesSended, report.Efficiency);
+            sb.AppendFormat("{0};{1};{2};{3};{4};{5}\n", report.Id, report.EmulationTime.TotalMinutes, report.GlobalTime.TotalHours, report.MessagesRecieved, report.MessagesSended, report.Efficiency);
 
             var text = sb.ToString();
 

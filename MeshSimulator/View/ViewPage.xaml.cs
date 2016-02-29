@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using MeshSimulator.Model;
 using Environment = MeshSimulator.Model.Environment;
 using System.Threading;
+using System.Media;
 
 namespace MeshSimulator.View
 {
@@ -36,7 +37,6 @@ namespace MeshSimulator.View
 
             t = new Thread(Enviroment.Emulate);
             t.Priority = ThreadPriority.Highest;
-            t.IsBackground = true;
             t.Name = "Prossessing";
         }
 
@@ -54,7 +54,7 @@ namespace MeshSimulator.View
             }
             else
             {
-                if (t.ThreadState == (ThreadState.Background | ThreadState.Unstarted))
+                if (t.ThreadState == (ThreadState.Unstarted))
                 {
                     t.Start();
                     Enviroment.IsEmulate = true;
@@ -106,7 +106,9 @@ namespace MeshSimulator.View
 
         void Enviroment_OnFinish(object sender, EventArgs e)
         {
+            SystemSounds.Beep.Play();
             var result = MessageBox.Show("That`s all folks!", "Create Report?", MessageBoxButton.YesNo);
+            t.Abort();
             if (result == MessageBoxResult.Yes)
             {
 
