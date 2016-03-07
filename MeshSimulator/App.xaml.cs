@@ -28,5 +28,11 @@ namespace MeshSimulator
             Enviroment = new Environment(variables);
             return Enviroment;
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            System.Environment.Exit(System.Environment.ExitCode);
+            base.OnExit(e);
+        }
     }
 }

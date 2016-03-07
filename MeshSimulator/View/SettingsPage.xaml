@@ -31,7 +31,7 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Count of stations" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="0" Grid.Column="2" x:Name="countOfStations" Text="10" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="0" Grid.Column="2" x:Name="countOfStations" Text="100" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Heigh, m" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="2" x:Name="fHeight" Text="600" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Width, m" VerticalAlignment="Center"/>
@@ -55,7 +55,7 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Connection radius, m" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="0" Grid.Column="2" x:Name="connectionRadius" Text="50" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="0" Grid.Column="2" x:Name="connectionRadius" Text="100" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Max speed, meter per. sec" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="2" x:Name="maxSpeed" Text="10" VerticalAlignment="Center"/>
                 </Grid>
@@ -75,9 +75,9 @@
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Cycles in Supercycle" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="0" Grid.Column="2" x:Name="cyclesInSuperCycle" Text="3" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Slot time, msec" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="1" Grid.Column="2" x:Name="slotTime" Text="100" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" x:Name="slotTime" Text="24" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Packet Tx time, msec" VerticalAlignment="Center"/>
-                    <TextBox Grid.Row="2" Grid.Column="2" x:Name="packetTxTime" Text="80" VerticalAlignment="Center"/>
+                    <TextBox Grid.Row="2" Grid.Column="2" x:Name="packetTxTime" Text="16" VerticalAlignment="Center"/>
                 </Grid>
             </GroupBox>
             <GroupBox Grid.Column="0" Grid.Row="1" Header="Disposition">
@@ -115,11 +115,11 @@
                         <RowDefinition Height="24"/>
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Periodical reports" VerticalAlignment="Center"/>
-                    <CheckBox Grid.Row="0" Grid.Column="2" x:Name="cbPeriodical" VerticalAlignment="Center"/>
+                    <CheckBox Grid.Row="0" Grid.Column="2" x:Name="cbPeriodical" VerticalAlignment="Center" IsChecked="True"/>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Count of periodical reports" VerticalAlignment="Center"/>
                     <TextBox Grid.Row="1" Grid.Column="2" x:Name="countOfReports" Text="10000" VerticalAlignment="Center"/>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Info expanshion reports" VerticalAlignment="Center"/>
-                    <CheckBox Grid.Row="2" Grid.Column="2" x:Name="cbInfoExpanshion" VerticalAlignment="Center"/>
+                    <CheckBox Grid.Row="2" Grid.Column="2" x:Name="cbInfoExpanshion" VerticalAlignment="Center" IsChecked="True"/>
                 </Grid>
             </GroupBox>
         </Grid>

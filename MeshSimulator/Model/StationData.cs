@@ -24,15 +24,22 @@ namespace MeshSimulator.Model
             set { firstHoc = value; }
         }
 
+        private int totalHoc = 0;
+
+        public int TotalHoc
+        {
+            get { return totalHoc; }
+            set { totalHoc = value; }
+        }
+
         private double averageHoc;
 
         public double AverageHoc
         {
-            get { return averageHoc; }
-            set { averageHoc = value; }
+            get { return TotalHoc / TimesRecieve; }
         }
 
-        private int timesRecieve = 1;
+        private int timesRecieve = 0;
 
         public int TimesRecieve
         {
@@ -48,12 +55,28 @@ namespace MeshSimulator.Model
             set { firstHocTime = value; }
         }
 
+        private TimeSpan lastUpdateTime = TimeSpan.Zero;
+
+        public TimeSpan LastUpdateTime
+        {
+            get { return lastUpdateTime; }
+            set { lastUpdateTime = value; }
+        }
+
+        private TimeSpan updateTime;
+
+        public TimeSpan UpdateTime
+        {
+            get { return updateTime; }
+            set { updateTime = value; }
+        }
+
+
         private TimeSpan avarageUpdateTime;
 
         public TimeSpan AvarageUpdateTime
         {
-            get { return avarageUpdateTime; }
-            set { avarageUpdateTime = value; }
+            get { return TimeSpan.FromMilliseconds(UpdateTime.TotalMilliseconds / TimesRecieve); }
         }
 
         private TimeSpan creationTime;
@@ -70,15 +93,14 @@ namespace MeshSimulator.Model
             FirstHoc = hoc;
             FirstHocTime = firstHocTime;
             CreationTime = creationTime;
-            AvarageUpdateTime = CreationTime;
-            AverageHoc = hoc;
         }
 
         public void Update(TimeSpan currentTime, int currentHoc)
         {
             TimesRecieve++;
-            AvarageUpdateTime = TimeSpan.FromMilliseconds((AvarageUpdateTime.TotalMilliseconds + currentTime.TotalMilliseconds) / 2);
-            AverageHoc = (AverageHoc + currentHoc) / 2;
+            UpdateTime = TimeSpan.FromMilliseconds((UpdateTime.TotalMilliseconds + currentTime.TotalMilliseconds - LastUpdateTime.TotalMilliseconds));
+            LastUpdateTime = currentTime;
+            TotalHoc += currentHoc;
         }
     }
 }

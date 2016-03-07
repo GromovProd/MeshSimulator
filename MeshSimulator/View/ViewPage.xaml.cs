@@ -111,7 +111,7 @@ namespace MeshSimulator.View
             t.Abort();
             if (result == MessageBoxResult.Yes)
             {
-
+                Application.Current.Shutdown();
             }
         }
 
