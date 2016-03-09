@@ -24,9 +24,9 @@ namespace MeshSimulator.Model
             set { firstHoc = value; }
         }
 
-        private int totalHoc = 0;
+        private double totalHoc = 0;
 
-        public int TotalHoc
+        public double TotalHoc
         {
             get { return totalHoc; }
             set { totalHoc = value; }
