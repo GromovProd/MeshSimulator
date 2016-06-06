@@ -36,7 +36,11 @@ namespace MeshSimulator.Model
 
         public double AverageHoc
         {
-            get { return TotalHoc / TimesRecieve; }
+            get
+            {
+                if (TimesRecieve == 0) return 0;
+                return TotalHoc / TimesRecieve;
+            }
         }
 
         private int timesRecieve = 0;
@@ -76,7 +80,11 @@ namespace MeshSimulator.Model
 
         public TimeSpan AvarageUpdateTime
         {
-            get { return TimeSpan.FromMilliseconds(UpdateTime.TotalMilliseconds / TimesRecieve); }
+            get
+            {
+                if (TimesRecieve == 0) return this.CreationTime;
+                return TimeSpan.FromMilliseconds(UpdateTime.TotalMilliseconds / TimesRecieve);
+            }
         }
 
         private TimeSpan creationTime;

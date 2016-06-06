@@ -108,10 +108,10 @@ namespace MeshSimulator.View
         {
             SystemSounds.Beep.Play();
             var result = MessageBox.Show("That`s all folks!", "Create Report?", MessageBoxButton.YesNo);
-            t.Abort();
             if (result == MessageBoxResult.Yes)
             {
-                Application.Current.Shutdown();
+                //App.Current.Shutdown();
+                System.Environment.Exit(0);
             }
         }
 

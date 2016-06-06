@@ -195,7 +195,10 @@ namespace MeshSimulator.Model
 
             for (int i = 0; i < Variables.CountOfStations; i++)
             {
-                var station = new SimpleStation(i, Variables.ConnectionRadius, coords[i], Variables.CyclesInSuperCycle, Variables.CountOfStations, new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, Variables.PacketTransmitTime), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), Variables.MaxSpeed, Variables.Height, Variables.Width);
+                var station = new SimpleStation(i, Variables.ConnectionRadius,
+                    coords[i], Variables.CyclesInSuperCycle, Variables.CountOfStations,
+                    new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds), new TimeSpan(0, 0, 0, 0, 0), new TimeSpan(0, 0, 0, 0, Variables.SlotTimeMilliSeconds),
+                    new TimeSpan(0, 0, 0, 0, Variables.PacketTransmitTime), 0, 0, (10 * Rand.NextDouble() - 5) / 500, Rand.Next(), Variables.MaxSpeed, Variables.Height, Variables.Width);
 
                 Stations.Add(station);
             }
@@ -208,32 +211,35 @@ namespace MeshSimulator.Model
             Stations[idWithInfo].IsGotSpecialInfo = true;
         }
 
+        /// <summary>
+        /// Метод, реализующий бесконечный цикл алгоритма взаимодействия моделей
+        /// </summary>
         public void Emulate()
         {
-            StartTime = DateTime.Now;
-
+            StartTime = DateTime.Now; //инициализация начального времени
             var isTimeAdded = false;
 
-            while (IsEmulate)
+            while (IsEmulate) //вход в цикл
             {
-
                 if (TransmitredTotal != 0)
+                    //расчет эффективности передачи сообщений
                     Efficiency = (double)RecievedTotal / (double)TransmitredTotal;
 
-                //обновляем устройство
-                var station = GetNextStation();
+
+                var station = GetNextStation(); //выбираем устройство, которое выполнит действие
 
                 if (station.AwakeTime == TimeSpan.Zero || isTimeAdded)
                 {
                     isTimeAdded = false;
-                    Update(station);
+                    Update(station); //обновляем усрйоство
                 }
                 else
                 {
                     isTimeAdded = true;
-
+                    //вычисляем время, на которое сместим глобальные часы и всех отсальных усройств
                     var timeToSubstract = station.AwakeTime;
 
+                    //обновляем часы, время следующего события и координаты каждого устройства
                     foreach (IStation s in Stations)
                     {
                         s.LocalTime = s.LocalTime.Add(timeToSubstract);
@@ -241,72 +247,96 @@ namespace MeshSimulator.Model
                         s.UpdatePosition(timeToSubstract);
                     }
 
+                    //устанавливаем локальное время с учетом девиации кварцевого генератора
                     station.AddError(timeToSubstract);
 
-                    GlobalTime = GlobalTime.Add(timeToSubstract);
+                    GlobalTime = GlobalTime.Add(timeToSubstract); //изменяем глобальное время
 
-                    CheckEvents();
+                    CheckEvents(); //проверка на наступление событий
 
-                    if (IsUIon)
+                    if (IsUIon) //логика отображения
                     {
                         if (IsRealTime)
                         {
-                            //Реалтайм
-                            Thread.Sleep(timeToSubstract);
+                            Thread.Sleep(timeToSubstract); //без задержек
                         }
                         else
                         {
-                            Thread.Sleep(1);
+                            Thread.Sleep(1); //замедленная работа
                         }
                     }
                 }
-
-                //вызываем событие
-                CallOnTurn();
+                CallOnTurn(); //вызыв события, о завершении прохождения цикла
             }
         }
 
-        private void CheckEvents()
+        private void CheckEvents() //проверка наступления различных событий
         {
-            if (Variables.DoReports)
+            if (Variables.DoReports) //проверка на необходимость делать периодические отчеты
             {
                 //Собираем аналитику каждые ReportMinutesInterval минут
                 if (GlobalTime.TotalMilliseconds > ReportsDone * ReportMillisecondsInterval)
                 {
-                    ReportsDone++;
-
-                    var report = new Report.Report() { Id = ReportsDone, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency };
-                    ReportWriter.WriteReport(report);
+                    ReportsDone++; //счетчик сделанных отчетов
+                    //создаем новаый отчет и передаем всю интересующую информацию
+                    var report = new Report.Report()
+                    {
+                        Id = ReportsDone,
+                        EmulationTime = EmulationTime,
+                        GlobalTime = GlobalTime,
+                        MessagesSended = TransmitredTotal,
+                        MessagesRecieved = RecievedTotal,
+                        Efficiency = Efficiency
+                    };
+                    ReportWriter.WriteReport(report); //запись данных в файл
 
                 }
             }
 
-            if (Variables.DoInfoExpandReports)
+            if (Variables.DoInfoExpandReports) //проверка на необходимость делать отчет об инициализации сети
             {
+                //если число станций, которые знают все обо всех изменилось, то выполнить функции
                 if (Stations.Where(i => i.IsGotSpecialInfo).Count() != CountOfInfoExpandedStations)
                 {
-                    CountOfInfoExpandedStations++;
+                    CountOfInfoExpandedStations++; //счетчик станций, коотрые получили информацию обо всех абонентах
+                    //сощдаем отчет
+                    var report = new Report.InfoExpandReport()
+                    {
+                        Id = CountOfInfoExpandedStations,
+                        EmulationTime = EmulationTime,
+                        GlobalTime = GlobalTime,
+                        MessagesSended = TransmitredTotal,
+                        MessagesRecieved = RecievedTotal,
+                        Efficiency = Efficiency
+                    };
+                    ReportWriter.WriteReport(report); //запись данных в файл
 
-                    var report = new Report.InfoExpandReport() { Id = CountOfInfoExpandedStations, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency };
-                    ReportWriter.WriteReport(report);
-
-                    CallOnInfoExpanded();
+                    CallOnInfoExpanded(); //поднятие события о завершении отчета
                 }
             }
 
-            if (GlobalTime >= Variables.EndTime)
+            if (GlobalTime >= Variables.EndTime) //проверка на окончание моделировании по времени
             {
-                IsEmulate = false;
+                IsEmulate = false; //выйти из бесконечного цикла
 
                 var dict = new Dictionary<int, List<StationData>>();
-
+                //собираем все данные и статистику, которые накопили устройства за время работы
                 for (int i = 0; i < Stations.Count; i++)
                 {
                     dict.Add(Stations[i].Id, Stations[i].Data);
                 }
-
-                var report = new Report.FinishReport() { Id = ReportsDone, EmulationTime = EmulationTime, GlobalTime = GlobalTime, MessagesSended = TransmitredTotal, MessagesRecieved = RecievedTotal, Efficiency = Efficiency, StationsData = dict };
-                ReportWriter.GenerateFinishReport(Variables, report);
+                //создаем отчет
+                var report = new Report.FinishReport()
+                {
+                    Id = ReportsDone,
+                    EmulationTime = EmulationTime,
+                    GlobalTime = GlobalTime,
+                    MessagesSended = TransmitredTotal,
+                    MessagesRecieved = RecievedTotal,
+                    Efficiency = Efficiency,
+                    StationsData = dict
+                };
+                ReportWriter.GenerateFinishReport(Variables, report); //запись данных в файл
 
                 CallOnFinish();
             }
@@ -338,52 +368,46 @@ namespace MeshSimulator.Model
 
         public void Update(IStation station)
         {
-
-            station.Update();
-
-            ProvideTransmition(station);
-
+            station.Update(); //обновляем параметры и состояние устройства
+            ProvideTransmition(station); //осуществляем прием/передачу
         }
 
-        private void ProvideTransmition(IStation station)
+        private void ProvideTransmition(IStation station) //метод обеспечивающий передачу
         {
-            //если передает
-            if (station.CurrentState == StationAction.TxUp)
+            if (station.CurrentState == StationAction.TxUp) //если устройство передает
             {
-                var channelState = GetChannelState(station);
+                var channelState = GetChannelState(station); //узнаем состояние канала связи
 
-                if (channelState == Model.ChannelState.Empty)
+                if (channelState == Model.ChannelState.Empty) //если никто не вещает
                 {
-                    var RxStations = GetNearRxStations(station);
+                    var RxStations = GetNearRxStations(station); //собрать все станции, которые могут услышать
 
                     station.StationsToTransmit = RxStations;
                 }
             }
-
-            if (station.CurrentState == StationAction.TxDown)
+            if (station.CurrentState == StationAction.TxDown) //если устройтсво оканчиваем передачу
             {
 #if DEBUG
                 Logger.Instance.WriteInfo(station.Id + " trying to transmit");
 #endif
-
-                foreach (SimpleStation rx in station.StationsToTransmit)
+                //Передаем сообщение всем станциям, которые остались в зоне действия
+                foreach (SimpleStation rx in station.StationsToTransmit) 
                 {
 #if DEBUG
                     Logger.Instance.WriteInfo(station.Id + " transmit to:" + rx.Id);
 #endif
-
-                    TransmitredTotal++;
-                    var channelState = GetChannelState(rx);
-                    bool isNoise = !CanDeliver(station.ConnectionRadius, GetRange(station, rx));
-                    var message = station.Transmit(isNoise, rx.Id);
-                    rx.Recieve(channelState, message);
-                    if (!isNoise)
+                    TransmitredTotal++; //счетчик переданных сообщений
+                    var channelState = GetChannelState(rx); //проверка состяния канала
+                    //состяние зашумленности канала, учитываются потери энергии
+                    bool isNoise = !CanDeliver(station.ConnectionRadius, GetRange(station, rx)); 
+                    var message = station.Transmit(isNoise, rx.Id); //создаем сообщение
+                    rx.Recieve(channelState, message); //принимаем сообщение
+                    if (!isNoise) //если сообщение было успешно принято
                     {
-                        RecievedTotal++;
+                        RecievedTotal++; //увеличиваем счетчик успешного приема сообщений
                     }
                 }
-
-                station.StationsToTransmit.Clear();
+                station.StationsToTransmit.Clear(); //очищаем список станций, которые принимали
             }
         }
 
@@ -396,15 +420,14 @@ namespace MeshSimulator.Model
         //Обеспечение приема заданной вероятности
         public bool CanDeliver(double maxRange, double range)
         {
+            //рассчитываем вероятность приема, считая, что затухание квадратичное
             double p = (1 / (maxRange * maxRange)) * range * range - (2 / maxRange) * range + 1;
-
             var random = rand.NextDouble();
 
-            if (random < p)
+            if (random < p) //если полученное число больше веротности, то доставляем пакет
             {
                 return true;
             }
-
             return false;
         }
 
@@ -415,8 +438,9 @@ namespace MeshSimulator.Model
         /// <returns></returns>
         public List<IStation> GetNearRxStations(IStation tx)
         {
+            //выбираем станции, в режиме прослушивания
             var rxStations = Stations.Where(i => i.IsReceive == true).ToList();
-
+            //фильтруем список. Станции должны находиться в зоне действия передатчика
             return GetCanConnectStations(tx, rxStations);
         }
 
@@ -486,6 +510,5 @@ namespace MeshSimulator.Model
             }
         }
         #endregion
-
     }
 }
